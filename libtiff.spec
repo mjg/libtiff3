@@ -13,9 +13,9 @@ Patch4: libtiff-v3.6.1-64bit.patch
 Patch5: libtiff-v3.5.7-largefile.patch
 Patch6: libtiff-v3.6.1-makeflags.patch
 Patch7: libtiff-v3.6.1-hylafax.patch
-Patch8: libtiff-v3.6.1-alt-bound.patch
-Patch9: libtiff-v3.6.1-chris-bound.patch
-Patch10: libtiff-v3.6.1-alt-bound2.patch
+Patch8: libtiff-3.6.1-alt-bound.patch
+Patch9: libtiff-3.6.1-chris-bound.patch
+Patch10: libtiff-3.6.1-alt-bound2.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
