@@ -6,7 +6,7 @@ License: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-%{version}.tar.gz
 Patch0: libtiff-v3.6.1-64bit.patch
-Patch1: libtiff-v3.7.1-largefile.patch
+Patch1: libtiff-3.7.1-largefile.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
