@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.7.1
-Release: 4
+Release: 5
 License: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-%{version}.tar.gz
@@ -9,6 +9,7 @@ Patch0: libtiff-v3.6.1-64bit.patch
 Patch1: libtiff-3.5.7-dump.patch
 # http://bugzilla.remotesensing.org/show_bug.cgi?id=718, fixed in 3.7.2
 Patch2: libtiff-3.7.1-extrasamples.patch
+Patch3: libtiff-3.5.7-mktemp.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -44,6 +45,7 @@ install the libtiff package.
 %patch0 -p1 -b .64bit
 %patch1 -p1 -b .dump
 %patch2 -p1 -b .extrasamples
+%patch3 -p1 -b .mktemp
 
 %build
 
@@ -82,6 +84,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Wed Mar  2 2005 Matthias Clasen <mclasen@redhat.com> - 3.7.1-5
+- Don't use mktemp
+
 * Wed Mar  2 2005 Matthias Clasen <mclasen@redhat.com> - 3.7.1-4
 - Rebuild with gcc4
 
