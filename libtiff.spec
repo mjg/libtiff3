@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.7
-Release: 6
+Release: 7
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -13,6 +13,7 @@ Patch4: libtiff-v3.5.5-buildroot.patch
 Patch5: libtiff-v3.5.5-64bit.patch
 Patch6: libtiff-v3.5.7-seek.patch
 Patch7: libtiff-v3.5.7-exit.patch
+Patch8: libtiff-v3.5.7-largefile.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -52,6 +53,7 @@ install the libtiff package.
 %patch5 -p1 -b .64bit
 %patch6 -p1 -b .seek
 %patch7 -p1 -b .exit
+%patch8 -p1 -b .largefile
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
@@ -107,6 +109,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Mon Aug 19 2002 Phil Knirsch <pknirsch@redhat.com> 3.5.7-7
+- Added LFS support (#71593)
+
 * Tue Jun 25 2002 Phil Knirsch <pknirsch@redhat.com> 3.5.7-6
 - Fixed wrong exit code of tiffcp app (#67240)
 
