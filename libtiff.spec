@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.7.1
-Release: 3
+Release: 4
 License: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-%{version}.tar.gz
@@ -82,6 +82,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Wed Mar  2 2005 Matthias Clasen <mclasen@redhat.com> - 3.7.1-4
+- Rebuild with gcc4
+
 * Wed Jan  5 2005 Matthias Clasen <mclasen@redhat.com> - 3.7.1-3
 - Drop the largefile patch again
 - Fix a problem with the handling of alpha channels
