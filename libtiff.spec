@@ -1,11 +1,10 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.5
-Release: 7
+Release: 10
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
-Source1: tiff-to-ps.fpi
 Patch0: tiff-v3.5-shlib.patch
 Patch1: libtiff-v3.4-arm.patch
 Patch2: libtiff-v3.5.4-codecs.patch
@@ -31,7 +30,7 @@ format image files.
 %package devel
 Summary: Development tools for programs which will use the libtiff library.
 Group: Development/Libraries
-Requires: libtiff
+Requires: libtiff = %{PACKAGE_VERSION}
 
 %description devel
 This package contains the header files and static libraries for
@@ -77,9 +76,6 @@ make install
 install -m755 libtiff/libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}
 ln -sf libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}/libtiff.so
 
-mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/lib/rhs/rhs-printfilters
-install -m755 %{SOURCE1} ${RPM_BUILD_ROOT}%{_prefix}/lib/rhs/rhs-printfilters
-
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
@@ -94,7 +90,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{_libdir}/libtiff.so.%{LIBVER}
 %{_mandir}/man1/*
-%{_prefix}/lib/rhs/*/*
 
 %files devel
 %defattr(-,root,root)
@@ -105,6 +100,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Fri Mar 16 2001 Crutcher Dunnavant <crutcher@redhat.com>
+- killed tiff-to-ps.fpi filter
+
+* Wed Feb 28 2001 Philipp Knirsch <pknirsch@redhat.de>
+- Fixed missing devel version dependancy.
+
+* Tue Dec 19 2000 Philipp Knirsch <pknirsch@redhat.de>
+- rebuild
+
 * Tue Aug  7 2000 Crutcher Dunnavant <crutcher@redhat.com>
 - added a tiff-to-ps.fpi filter for printing
 
