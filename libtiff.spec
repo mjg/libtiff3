@@ -12,6 +12,7 @@ Patch3: libtiff-v3.5.5-buildroot.patch
 Patch4: libtiff-v3.6.1-64bit.patch
 Patch5: libtiff-v3.5.7-largefile.patch
 Patch6: libtiff-v3.6.1-makeflags.patch
+Patch7: libtiff-v3.6.1-hylafax.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -50,6 +51,7 @@ install the libtiff package.
 %patch4 -p1 -b .64bit
 %patch5 -p1 -b .largefile
 %patch6 -p1 -b .makeflags
+%patch7 -p1 -b .hylafax
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
@@ -107,6 +109,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Oct 12 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-6
+- fix http://bugzilla.remotesensing.org/show_bug.cgi?id=483
+
 * Mon Sep 27 2004 Rik van Riel <riel@redhat.com> 3.6.1-4
 - compile using RPM_OPT_FLAGS (bz #133650)
 
