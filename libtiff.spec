@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.6.1
-Release: 1
+Release: 2
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -49,6 +49,7 @@ install the libtiff package.
 %patch3 -p1 -b .buildroot
 %patch4 -p1 -b .64bit
 %patch5 -p1 -b .largefile
+%patch6 -p1 -b .makeflags
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
@@ -106,6 +107,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Thu May 20 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-2
+- Fix and use the makeflags patch  
+
 * Wed May 19 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-1
 - Upgrade to 3.6.1
 - Adjust patches
