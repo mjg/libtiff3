@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.5
-Release: 10
+Release: 10a
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -12,6 +12,7 @@ Patch3: libtiff-v3.5.4-mandir.patch
 Patch4: libtiff-v3.5.5-buildroot.patch
 Patch5: libtiff-v3.5.5-test.patch
 Patch6: libtiff-v3.5.5-steve.patch
+Patch7: libtiff-v3.5.5-s390x.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -50,6 +51,7 @@ install the libtiff package.
 %patch4 -p1 -b .buildroot
 %patch5 -p1 -b .test
 %patch6 -p1 -b .steve
+%patch7 -p1 -b .s390x
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
