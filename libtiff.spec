@@ -44,6 +44,7 @@ install the libtiff package.
 
 %configure 
 make
+make check
 
 %install
 
@@ -80,6 +81,7 @@ rm -rf $RPM_BUILD_ROOT
 - Upgrade to 3.7.1
 - Remove upstreamed patches
 - Remove specfile cruft
+- make check
 
 * Thu Oct 14 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-7
 - fix some integer and buffer overflows (#134853, #134848)
