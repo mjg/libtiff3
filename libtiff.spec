@@ -1,20 +1,17 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
-Version: 3.5.7
-Release: 16.1
+Version: 3.6.1
+Release: 1
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
-Patch0: tiff-v3.5-shlib.patch
-Patch1: libtiff-v3.4-arm.patch
-Patch2: libtiff-v3.5.4-codecs.patch
-Patch3: libtiff-v3.5.4-mandir.patch
-Patch4: libtiff-v3.5.5-buildroot.patch
-Patch5: libtiff-v3.5.5-64bit.patch
-Patch6: libtiff-v3.5.7-seek.patch
-Patch7: libtiff-v3.5.7-exit.patch
-Patch8: libtiff-v3.5.7-largefile.patch
-Patch9: libtiff-v3.5.7-makeflags.patch
+Patch0: libtiff-v3.6-shlib.patch
+Patch1: libtiff-v3.6.1-codecs.patch
+Patch2: libtiff-v3.5.4-mandir.patch
+Patch3: libtiff-v3.5.5-buildroot.patch
+Patch4: libtiff-v3.6.1-64bit.patch
+Patch5: libtiff-v3.5.7-largefile.patch
+Patch6: libtiff-v3.6.1-makeflags.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -47,15 +44,11 @@ install the libtiff package.
 %prep
 %setup -q -n tiff-v%{version}
 %patch0 -p1 -b .shlib
-%patch1 -p1 -b .arm
-%patch2 -p1 -b .codecs
-%patch3 -p1 -b .mandir
-%patch4 -p1 -b .buildroot
-%patch5 -p1 -b .64bit
-%patch6 -p1 -b .seek
-%patch7 -p1 -b .exit
-%patch8 -p1 -b .largefile
-%patch9 -p1 -b .makeflags
+%patch1 -p1 -b .codecs
+%patch2 -p1 -b .mandir
+%patch3 -p1 -b .buildroot
+%patch4 -p1 -b .64bit
+%patch5 -p1 -b .largefile
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
@@ -87,6 +80,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff.so*
 install -m755 libtiff/libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}
 ln -sf libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}/libtiff.so
 /sbin/ldconfig -n $RPM_BUILD_ROOT/%{_libdir}
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
 
 %post -p /sbin/ldconfig
 
@@ -112,6 +106,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Wed May 19 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-1
+- Upgrade to 3.6.1
+- Adjust patches
+- Don't install tiffgt man page  (#104864)
+
 * Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
