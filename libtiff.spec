@@ -1,21 +1,11 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
-Version: 3.6.1
-Release: 7
+Version: 3.7.1
+Release: 1
 License: distributable
 Group: System Environment/Libraries
-Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
-Patch0: libtiff-v3.6-shlib.patch
-Patch1: libtiff-v3.6.1-codecs.patch
-Patch2: libtiff-v3.5.4-mandir.patch
-Patch3: libtiff-v3.5.5-buildroot.patch
-Patch4: libtiff-v3.6.1-64bit.patch
-Patch5: libtiff-v3.5.7-largefile.patch
-Patch6: libtiff-v3.6.1-makeflags.patch
-Patch7: libtiff-v3.6.1-hylafax.patch
-Patch8: libtiff-3.6.1-alt-bound.patch
-Patch9: libtiff-3.6.1-chris-bound.patch
-Patch10: libtiff-3.6.1-alt-bound2.patch
+Source0: http://www.libtiff.org/tiff-%{version}.tar.gz
+Patch0: libtiff-v3.6.1-64bit.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -46,75 +36,51 @@ image files, you should install this package.  You'll also need to
 install the libtiff package.
 
 %prep
-%setup -q -n tiff-v%{version}
-%patch0 -p1 -b .shlib
-%patch1 -p1 -b .codecs
-%patch2 -p1 -b .mandir
-%patch3 -p1 -b .buildroot
-%patch4 -p1 -b .64bit
-%patch5 -p1 -b .largefile
-%patch6 -p1 -b .makeflags
-%patch7 -p1 -b .hylafax
-%patch8 -p1 -b .alt-bound
-%patch9 -p1 -b .chris-bound
-%patch10 -p1 -b .alt-bound2
-find . -type d -name CVS | xargs -r rm -frv
+
+%setup -q -n tiff-%{version}
+%patch0 -p1 -b .64bit
 
 %build
 
-# Fixes problem with newer bash versions and doesn't hurt older ones.
-CDPATH=""
-unset CDPATH
-./configure --target=%{_target_platform} << EOF
-no
-%{_bindir}
-%{_libdir}
-%{_includedir}
-%{_mandir}
-$RPM_DOC_DIR/%{name}-%{version}
-bsd-source-cat
-yes
-EOF
-cd libtiff
-ln -s libtiff.so.%{LIBVER} libtiff.so
-cd ..
-export LDOPTS=-s
-make OPTIMIZER="${RPM_OPT_FLAGS}" LIBJPEG="-L%{_libdir} -ljpeg" LIBGZ="-L%{_libdir} -lz" %{?_smp_mflags}
+%configure 
+make
 
 %install
-[ "$RPM_BUILD_DIR" ] && rm -fr $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_includedir},%{_mandir}}
-make install
-rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff.so*
-install -m755 libtiff/libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}
-ln -sf libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}/libtiff.so
-/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_libdir}
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
+
+rm -fr $RPM_BUILD_ROOT
+%makeinstall
+rm $RPM_BUILD_ROOT%{_libdir}/*.la
+rm -rf $RPM_BUILD_ROOT%{_datadir}/doc
 
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
 
+rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc COPYRIGHT README VERSION
+%doc COPYRIGHT README RELEASE-DATE VERSION
 %{_bindir}/*
 %{_libdir}/libtiff.so.*
 %{_mandir}/man1/*
 
 %files devel
 %defattr(-,root,root)
-%doc TODO html
+%doc TODO ChangeLog html
 %{_includedir}/*
 %{_libdir}/libtiff.so
 %{_libdir}/libtiff.a
 %{_mandir}/man3/*
 
 %changelog
+* Wed Dec 22 2004 Matthias Clasen <mclasen@redhat.com> - 3.7.1-1
+- Upgrade to 3.7.1
+- Remove upstreamed patches
+- Remove specfile cruft
+
 * Thu Oct 14 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-7
 - fix some integer and buffer overflows (#134853, #134848)
 
