@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.5
-Release: 12
+Release: 13
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -12,6 +12,7 @@ Patch3: libtiff-v3.5.4-mandir.patch
 Patch4: libtiff-v3.5.5-buildroot.patch
 Patch5: libtiff-v3.5.5-test.patch
 Patch6: libtiff-v3.5.5-steve.patch
+Patch7: libtiff-v3.5.5-64bit.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -19,9 +20,9 @@ Requires: zlib libjpeg
 %define LIBVER %(echo %{version} | cut -f-2 -d.)
 
 %description
-The libtiff package contains a library of functions for manipulating 
-TIFF (Tagged Image File Format) image format files.  TIFF is a widely
-used file format for bitmapped images.  TIFF files usually end in the
+The libtiff package contains a library of functions for manipulating
+TIFF (Tagged Image File Format) image format files. TIFF is a widely
+used file format for bitmapped images. TIFF files usually end in the
 .tif extension and they are often quite large.
 
 The libtiff package should be installed if you need to manipulate TIFF
@@ -38,8 +39,8 @@ developing programs which will manipulate TIFF format image files
 using the libtiff library.
 
 If you need to develop programs which will manipulate TIFF format
-image files, you should install this package.  You'll also need to
-install the libtiff package.
+image files, you should install this package. You also need to install
+the libtiff package.
 
 %prep
 %setup -q -n tiff-v%{version}
@@ -50,6 +51,7 @@ install the libtiff package.
 %patch4 -p1 -b .buildroot
 %patch5 -p1 -b .test
 %patch6 -p1 -b .steve
+%patch7 -p1 -b .64bit
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
@@ -67,7 +69,7 @@ EOF
 cd libtiff
 ln -s libtiff.so.%{LIBVER} libtiff.so
 cd ..
-make COPTS="$RPM_OPT_FLAGS" LDOPTS="-s"
+make LDOPTS="-s"
 
 %install
 [ "$RPM_BUILD_DIR" ] && rm -fr $RPM_BUILD_ROOT
@@ -101,6 +103,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Aug 28 2001 Phil Knirsch <phil@redhat.de>
+- Fixed ia64 problem with tiffinfo. Was general 64 bit arch problem where s390x
+  and ia64 were missing (#52129).
+
 * Tue Jun 26 2001 Philipp Knirsch <pknirsch@redhat.de>
 - Hopefully final symlink fix
 
