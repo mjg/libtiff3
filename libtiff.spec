@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.7
-Release: 11
+Release: 14
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -112,6 +112,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Thu Oct 09 2003 Florian La Roche <Florian.LaRoche@redhat.de>
+- link shared lib against -lm (Jakub Jelinek)
+
+* Thu Sep 25 2003 Jeremy Katz <katzj@redhat.com> 3.5.7-13
+- rebuild to fix gzipped file md5sum (#91281)
+
+* Wed Jun 04 2003 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
 * Tue Feb 11 2003 Phil Knirsch <pknirsch@redhat.com> 3.5.7-11
 - Fixed rebuild problems.
 
