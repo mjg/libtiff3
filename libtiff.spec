@@ -9,7 +9,7 @@ Patch0: libtiff-v3.6.1-64bit.patch
 Patch1: libtiff-3.5.7-dump.patch
 # http://bugzilla.remotesensing.org/show_bug.cgi?id=718, fixed in 3.7.2
 Patch2: libtiff-3.7.1-extrasamples.patch
-Patch3: libtiff-3.5.7-mktemp.patch
+Patch3: libtiff-3.7.1-mktemp.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
