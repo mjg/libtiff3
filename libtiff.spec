@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.7
-Release: 14
+Release: 16.1
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -86,7 +86,7 @@ make install
 rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff.so*
 install -m755 libtiff/libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}
 ln -sf libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}/libtiff.so
-/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
+/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_libdir}
 
 %post -p /sbin/ldconfig
 
@@ -112,6 +112,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Mar 02 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
+* Sat Feb 21 2004 Florian La Roche <Florian.LaRoche@redhat.de>
+- really add symlink to shared lib by running ldconfig at compile time
+
+* Fri Feb 13 2004 Elliot Lee <sopwith@redhat.com>
+- rebuilt
+
 * Thu Oct 09 2003 Florian La Roche <Florian.LaRoche@redhat.de>
 - link shared lib against -lm (Jakub Jelinek)
 
