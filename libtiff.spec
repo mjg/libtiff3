@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.5
-Release: 11
+Release: 12
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -73,6 +73,7 @@ make COPTS="$RPM_OPT_FLAGS" LDOPTS="-s"
 [ "$RPM_BUILD_DIR" ] && rm -fr $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/{%{_bindir},%{_includedir},%{_mandir}}
 make install
+rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff.so*
 install -m755 libtiff/libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}
 ln -sf libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}/libtiff.so
 
@@ -100,6 +101,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 26 2001 Philipp Knirsch <pknirsch@redhat.de>
+- Hopefully final symlink fix
+
 * Thu Jun 21 2001 Than Ngo <than@redhat.com>
 - add missing libtiff symlink
 
