@@ -1,8 +1,8 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.6.1
-Release: 3
-Copyright: distributable
+Release: 4
+License: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
 Patch0: libtiff-v3.6-shlib.patch
@@ -71,7 +71,7 @@ cd libtiff
 ln -s libtiff.so.%{LIBVER} libtiff.so
 cd ..
 export LDOPTS=-s
-make LIBJPEG="-L%{_libdir} -ljpeg" LIBGZ="-L%{_libdir} -lz" %{?_smp_mflags}
+make OPTIMIZER="${RPM_OPT_FLAGS}" LIBJPEG="-L%{_libdir} -ljpeg" LIBGZ="-L%{_libdir} -lz" %{?_smp_mflags}
 
 %install
 [ "$RPM_BUILD_DIR" ] && rm -fr $RPM_BUILD_ROOT
@@ -107,6 +107,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Mon Sep 27 2004 Rik van Riel <riel@redhat.com> 3.6.1-4
+- compile using RPM_OPT_FLAGS (bz #133650)
+
 * Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
 - rebuilt
 
