@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.7
-Release: 2
+Release: 6
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -11,6 +11,8 @@ Patch2: libtiff-v3.5.4-codecs.patch
 Patch3: libtiff-v3.5.4-mandir.patch
 Patch4: libtiff-v3.5.5-buildroot.patch
 Patch5: libtiff-v3.5.5-64bit.patch
+Patch6: libtiff-v3.5.7-seek.patch
+Patch7: libtiff-v3.5.7-exit.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -48,6 +50,8 @@ install the libtiff package.
 %patch3 -p1 -b .mandir
 %patch4 -p1 -b .buildroot
 %patch5 -p1 -b .64bit
+%patch6 -p1 -b .seek
+%patch7 -p1 -b .exit
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
@@ -103,6 +107,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jun 25 2002 Phil Knirsch <pknirsch@redhat.com> 3.5.7-6
+- Fixed wrong exit code of tiffcp app (#67240)
+
+* Fri Jun 21 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
+* Thu May 23 2002 Tim Powers <timp@redhat.com>
+- automated rebuild
+
+* Wed May 15 2002 Phil Knirsch <pknirsch@redhat.com>
+- Fixed segfault in fax2tiff tool (#64708).
+
 * Mon Feb 25 2002 Phil Knirsch <pknirsch@redhat.com>
 - Fixed problem with newer bash versions setting CDPATH (#59741)
 
