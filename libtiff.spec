@@ -1,7 +1,7 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
 Version: 3.5.7
-Release: 7
+Release: 11
 Copyright: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-v%{version}.tar.gz
@@ -14,6 +14,7 @@ Patch5: libtiff-v3.5.5-64bit.patch
 Patch6: libtiff-v3.5.7-seek.patch
 Patch7: libtiff-v3.5.7-exit.patch
 Patch8: libtiff-v3.5.7-largefile.patch
+Patch9: libtiff-v3.5.7-makeflags.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -54,6 +55,7 @@ install the libtiff package.
 %patch6 -p1 -b .seek
 %patch7 -p1 -b .exit
 %patch8 -p1 -b .largefile
+%patch9 -p1 -b .makeflags
 find . -type d -name CVS | xargs -r rm -frv
 
 %build
@@ -75,7 +77,7 @@ cd libtiff
 ln -s libtiff.so.%{LIBVER} libtiff.so
 cd ..
 export LDOPTS=-s
-make
+make LIBJPEG="-L%{_libdir} -ljpeg" LIBGZ="-L%{_libdir} -lz" %{?_smp_mflags}
 
 %install
 [ "$RPM_BUILD_DIR" ] && rm -fr $RPM_BUILD_ROOT
@@ -84,6 +86,7 @@ make install
 rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff.so*
 install -m755 libtiff/libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}
 ln -sf libtiff.so.%{LIBVER} $RPM_BUILD_ROOT%{_libdir}/libtiff.so
+/sbin/ldconfig -n $RPM_BUILD_ROOT/%{_lib}
 
 %post -p /sbin/ldconfig
 
@@ -109,6 +112,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Feb 11 2003 Phil Knirsch <pknirsch@redhat.com> 3.5.7-11
+- Fixed rebuild problems.
+
+* Tue Feb 04 2003 Florian La Roche <Florian.LaRoche@redhat.de>
+- add symlink to shared lib
+
+* Wed Jan 22 2003 Tim Powers <timp@redhat.com>
+- rebuilt
+
+* Thu Dec 12 2002 Tim Powers <timp@redhat.com> 3.5.7-8
+- rebuild on all arches
+
 * Mon Aug 19 2002 Phil Knirsch <pknirsch@redhat.com> 3.5.7-7
 - Added LFS support (#71593)
 
