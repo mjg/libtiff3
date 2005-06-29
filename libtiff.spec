@@ -69,6 +69,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc COPYRIGHT README RELEASE-DATE VERSION
 %{_bindir}/*
 %{_libdir}/libtiff.so.*
+%{_libdir}/libtiffxx.so.*
 %{_mandir}/man1/*
 
 %files devel
@@ -77,6 +78,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 %{_libdir}/libtiff.so
 %{_libdir}/libtiff.a
+%{_libdir}/libtiffxx.so
+%{_libdir}/libtiffxx.a
 %{_mandir}/man3/*
 
 %changelog
