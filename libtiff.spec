@@ -1,13 +1,10 @@
 Summary: A library of functions for manipulating TIFF format image files.
 Name: libtiff
-Version: 3.7.2
+Version: 3.7.4
 Release: 1
 License: distributable
 Group: System Environment/Libraries
 Source0: http://www.libtiff.org/tiff-%{version}.tar.gz
-Patch0: libtiff-v3.6.1-64bit.patch
-# http://bugzilla.remotesensing.org/show_bug.cgi?id=843, fixed in 3.7.3
-Patch1: libtiff-3.7.2-persample.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
@@ -40,8 +37,6 @@ install the libtiff package.
 %prep
 
 %setup -q -n tiff-%{version}
-%patch0 -p1 -b .64bit
-%patch1 -p1 -b .persample
 
 %build
 
@@ -83,6 +78,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Thu Sep 29 2005 Matthias Clasen <mclasen@redhat.com> - 3.7.4-1
+- Update to 3.7.4
+- Drop upstreamed patches
+
 * Wed Jun 29 2005 Matthias Clasen <mclasen@redhat.com> - 3.7.2-1
 - Update to 3.7.2
 - Drop upstreamed patches
