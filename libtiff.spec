@@ -1,18 +1,17 @@
-Summary: A library of functions for manipulating TIFF format image files.
+Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.7.4
-Release: 1
+Release: 3
 License: distributable
 Group: System Environment/Libraries
-Source0: http://www.libtiff.org/tiff-%{version}.tar.gz
+Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 URL: http://www.libtiff.org/
-BuildRoot: %{_tmppath}/%{name}-root
-BuildRequires: zlib-devel zlib libjpeg-devel libjpeg
-Requires: zlib libjpeg 
-%define LIBVER %(echo %{version} | cut -f-2 -d.)
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires: zlib-devel libjpeg-devel
+%define LIBVER %(echo %{version} | cut -f 1-2 -d .)
 
 %description
-The libtiff package contains a library of functions for manipulating 
+The libtiff package contains a library of functions for manipulating
 TIFF (Tagged Image File Format) image format files.  TIFF is a widely
 used file format for bitmapped images.  TIFF files usually end in the
 .tif extension and they are often quite large.
@@ -21,9 +20,9 @@ The libtiff package should be installed if you need to manipulate TIFF
 format image files.
 
 %package devel
-Summary: Development tools for programs which will use the libtiff library.
+Summary: Development tools for programs which will use the libtiff library
 Group: Development/Libraries
-Requires: libtiff = %{version}
+Requires: %{name} = %{version}
 
 %description devel
 This package contains the header files and static libraries for
@@ -35,32 +34,31 @@ image files, you should install this package.  You'll also need to
 install the libtiff package.
 
 %prep
-
 %setup -q -n tiff-%{version}
 
 %build
+%configure
+make %{?_smp_mflags}
 
-%configure 
-make
+%check
 make check
 
 %install
-
 rm -fr $RPM_BUILD_ROOT
 %makeinstall
 rm $RPM_BUILD_ROOT%{_libdir}/*.la
-rm -rf $RPM_BUILD_ROOT%{_datadir}/doc
+rm $RPM_BUILD_ROOT%{_libdir}/*.a
+rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/
+
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
-%clean
-
-rm -rf $RPM_BUILD_ROOT
-
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,0755)
 %doc COPYRIGHT README RELEASE-DATE VERSION
 %{_bindir}/*
 %{_libdir}/libtiff.so.*
@@ -68,16 +66,23 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %files devel
-%defattr(-,root,root)
+%defattr(-,root,root,0755)
 %doc TODO ChangeLog html
 %{_includedir}/*
 %{_libdir}/libtiff.so
-%{_libdir}/libtiff.a
 %{_libdir}/libtiffxx.so
-%{_libdir}/libtiffxx.a
 %{_mandir}/man3/*
 
 %changelog
+* Wed Nov 16 2005 Matthias Clasen <mclasen@redhat.com> 3.7.4-3
+- Don't ship static libs
+
+* Fri Nov 11 2005 Matthias Saou <http://freshrpms.net/> 3.7.4-2
+- Remove useless explicit dependencies.
+- Minor spec file cleanups.
+- Move make check to %%check.
+- Add _smp_mflags.
+
 * Thu Sep 29 2005 Matthias Clasen <mclasen@redhat.com> - 3.7.4-1
 - Update to 3.7.4
 - Drop upstreamed patches
@@ -122,7 +127,7 @@ rm -rf $RPM_BUILD_ROOT
 - rebuilt
 
 * Thu May 20 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-2
-- Fix and use the makeflags patch  
+- Fix and use the makeflags patch
 
 * Wed May 19 2004 Matthias Clasen <mclasen@redhat.com> 3.6.1-1
 - Upgrade to 3.6.1
@@ -254,7 +259,7 @@ rm -rf $RPM_BUILD_ROOT
 * Wed Dec 22 1999 Bill Nottingham <notting@redhat.com>
 - update to 3.5.4
 
-* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com> 
+* Sun Mar 21 1999 Cristian Gafton <gafton@redhat.com>
 - auto rebuild in the new build environment (release 6)
 
 * Wed Jan 13 1999 Cristian Gafton <gafton@redhat.com>
