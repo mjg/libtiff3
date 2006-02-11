@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.7.4
-Release: 3.2
+Release: 3.2.1
 License: distributable
 Group: System Environment/Libraries
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
@@ -74,6 +74,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 3.7.4-3.2.1
+- bump again for double-long bug on ppc(64)
+
 * Tue Feb 07 2006 Jesse Keating <jkeating@redhat.com> - 3.7.4-3.2
 - rebuilt for new gcc4.1 snapshot and glibc changes
 
