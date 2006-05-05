@@ -51,7 +51,9 @@ rm $RPM_BUILD_ROOT%{_libdir}/*.a
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/
 
 # no libGL dependency, please
-rm $RPM_BUILD_ROOT%{_bindir}/tiffgt
+if [ -f $RPM_BUILD_ROOT%{_bindir}/tiffgt ]; then
+  rm $RPM_BUILD_ROOT%{_bindir}/tiffgt
+fi
 rm $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
 
 %clean
