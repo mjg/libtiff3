@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 1
+Release: 2
 License: distributable
 Group: System Environment/Libraries
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
@@ -22,7 +22,7 @@ format image files.
 %package devel
 Summary: Development tools for programs which will use the libtiff library
 Group: Development/Libraries
-Requires: %{name} = %{version}
+Requires: %{name} = %{version}-%{release}
 
 %description devel
 This package contains the header files and static libraries for
@@ -50,6 +50,10 @@ rm $RPM_BUILD_ROOT%{_libdir}/*.la
 rm $RPM_BUILD_ROOT%{_libdir}/*.a
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/
 
+# no libGL dependency, please
+rm $RPM_BUILD_ROOT%{_bindir}/tiffgt
+rm $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1.gz
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -74,6 +78,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Wed Apr 26 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-2
+- Drop tiffgt to get rid of the libGL dependency (#190768)
+
 * Wed Apr 26 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-1
 - Update to 3.8.2
 
