@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 2
+Release: 3
 License: distributable
 Group: System Environment/Libraries
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
@@ -82,7 +82,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
-* Thu May 25 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-1
+* Thu May 25 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-3
 - Fix overflows in tiffsplit
 
 * Wed Apr 26 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-2
