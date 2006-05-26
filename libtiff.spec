@@ -5,6 +5,7 @@ Release: 2
 License: distributable
 Group: System Environment/Libraries
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
+Patch0: tiffsplit-overflow.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -35,6 +36,7 @@ install the libtiff package.
 
 %prep
 %setup -q -n tiff-%{version}
+%patch0 -p1 -b .overflow
 
 %build
 %configure
@@ -80,6 +82,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Thu May 25 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-1
+- Fix overflows in tiffsplit
+
 * Wed Apr 26 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-2
 - Drop tiffgt to get rid of the libGL dependency (#190768)
 
