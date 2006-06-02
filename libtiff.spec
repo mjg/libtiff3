@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 3
+Release: 4
 License: distributable
 Group: System Environment/Libraries
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
@@ -58,6 +58,33 @@ if [ -f $RPM_BUILD_ROOT%{_bindir}/tiffgt ]; then
 fi
 rm $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
 
+# fix multilib issues
+%ifarch x86_64 s390x ia64 ppc64
+%define wordsize 64
+%else
+%define wordsize 32
+%endif
+
+mv $RPM_BUILDROOT%{_includedir}/tiffconf.h \
+   $RPM_BUILDROOT%{_includedir}/tiffconf-%{wordsize}.h
+
+cat >$RPM_BUILD_ROOT%{_includedir}/tiffconf.h <<EOF
+#ifndef TIFFCONF_H_MULTILIB
+#define TIFFCONF_H_MULTILIB
+
+#include <bits/wordsize.h>
+
+#if __WORDSIZE == 32
+# include "tiffconf-32.h"
+#elif __WORDSIZE == 64
+# include "tiffconf-64.h"
+#else
+# error "unexpected value for __WORDSIZE macro"
+#endif
+
+#endif
+EOF
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -82,6 +109,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Fri Jun  2 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-3
+- Fix multilib conflict
+
 * Thu May 25 2006 Matthias Clasen <mclasen@redhat.com> - 3.8.2-3
 - Fix overflows in tiffsplit
 
