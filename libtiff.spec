@@ -65,8 +65,8 @@ rm $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
 %define wordsize 32
 %endif
 
-mv $RPM_BUILDROOT%{_includedir}/tiffconf.h \
-   $RPM_BUILDROOT%{_includedir}/tiffconf-%{wordsize}.h
+mv $RPM_BUILD_ROOT%{_includedir}/tiffconf.h \
+   $RPM_BUILD_ROOT%{_includedir}/tiffconf-%{wordsize}.h
 
 cat >$RPM_BUILD_ROOT%{_includedir}/tiffconf.h <<EOF
 #ifndef TIFFCONF_H_MULTILIB
