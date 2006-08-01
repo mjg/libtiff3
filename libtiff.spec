@@ -1,11 +1,12 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 4.1
+Release: 5
 License: distributable
 Group: System Environment/Libraries
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 Patch0: tiffsplit-overflow.patch
+Patch1: libtiff-3.8.2-ormandy.patch
 URL: http://www.libtiff.org/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -37,6 +38,7 @@ install the libtiff package.
 %prep
 %setup -q -n tiff-%{version}
 %patch0 -p1 -b .overflow
+%patch1 -p1 -b .ormandy
 
 %build
 %configure
@@ -109,6 +111,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Mon Jul 24 2006 Matthias Clasen <mclasen@redhat.com>
+- Fix several vulnerabilities (CVE-2006-3460 CVE-2006-3461
+  CVE-2006-3462 CVE-2006-3463 CVE-2006-3464 CVE-2006-3465)
+
 * Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - 3.8.2-4.1
 - rebuild
 
