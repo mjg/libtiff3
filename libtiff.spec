@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: distributable
 Group: System Environment/Libraries
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
@@ -47,8 +47,6 @@ install the libtiff package.
 %build
 %configure
 make %{?_smp_mflags}
-
-%check
 make check
 
 %install
@@ -91,6 +89,9 @@ cat >$RPM_BUILD_ROOT%{_includedir}/tiffconf.h <<EOF
 #endif
 EOF
 
+# don't include documentation Makefiles, they are a multilib hazard
+find html -name 'Makefile*' | xargs rm
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -115,6 +116,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %changelog
+* Tue Jan 16 2007 Tom Lane <tgl@redhat.com> 3.8.2-7
+- Remove Makefiles from the shipped /usr/share/doc/html directories
+Resolves: bz #222729
+
 * Tue Sep  5 2006 Jindrich Novy <jnovy@redhat.com> - 3.8.2-6
 - fix CVE-2006-2193, tiff2pdf buffer overflow (#194362)
 - fix typo in man page for tiffset (#186297)
