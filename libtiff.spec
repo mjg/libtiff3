@@ -1,15 +1,17 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 7%{?dist}
-License: distributable
+Release: 8%{?dist}
+License: BSD
 Group: System Environment/Libraries
+URL: http://www.libtiff.org/
+
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 Patch0: tiffsplit-overflow.patch
 Patch1: libtiff-3.8.2-ormandy.patch
 Patch2: libtiff-3.8.2-CVE-2006-2193.patch
 Patch3: libtiff-3.8.2-mantypo.patch
-URL: http://www.libtiff.org/
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
 %define LIBVER %(echo %{version} | cut -f 1-2 -d .)
@@ -29,7 +31,7 @@ Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 
 %description devel
-This package contains the header files and static libraries for
+This package contains the header files and documentation necessary for
 developing programs which will manipulate TIFF format image files
 using the libtiff library.
 
@@ -37,8 +39,19 @@ If you need to develop programs which will manipulate TIFF format
 image files, you should install this package.  You'll also need to
 install the libtiff package.
 
+%package static
+Summary: Static TIFF image format file library
+Group: Development/Libraries
+Requires: %{name}-devel = %{version}-%{release}
+
+%description static
+The libtiff-static package contains the statically linkable version of libtiff.
+Linking to static libraries is discouraged for most applications, but it is
+necessary for some boot packages.
+
 %prep
 %setup -q -n tiff-%{version}
+
 %patch0 -p1 -b .overflow
 %patch1 -p1 -b .ormandy
 %patch2 -p1 -b .CVE-2006-2193
@@ -47,32 +60,51 @@ install the libtiff package.
 %build
 %configure
 make %{?_smp_mflags}
-make check
+
+LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH make check
 
 %install
-rm -fr $RPM_BUILD_ROOT
+rm -rf $RPM_BUILD_ROOT
+
 %makeinstall
+
+# remove what we didn't want installed
 rm $RPM_BUILD_ROOT%{_libdir}/*.la
-rm $RPM_BUILD_ROOT%{_libdir}/*.a
 rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/
 
 # no libGL dependency, please
-if [ -f $RPM_BUILD_ROOT%{_bindir}/tiffgt ]; then
-  rm $RPM_BUILD_ROOT%{_bindir}/tiffgt
-fi
-rm $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
+rm -f $RPM_BUILD_ROOT%{_bindir}/tiffgt
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
+rm -f html/man/tiffgt.1.html
 
-# fix multilib issues
-%ifarch x86_64 s390x ia64 ppc64
-%define wordsize 64
-%else
-%define wordsize 32
-%endif
+# no sgi2tiff or tiffsv, either
+rm -f $RPM_BUILD_ROOT%{_bindir}/sgi2tiff
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/sgi2tiff.1
+rm -f html/man/sgi2tiff.1.html
+rm -f $RPM_BUILD_ROOT%{_bindir}/tiffsv
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/tiffsv.1
+rm -f html/man/tiffsv.1.html
 
-mv $RPM_BUILD_ROOT%{_includedir}/tiffconf.h \
-   $RPM_BUILD_ROOT%{_includedir}/tiffconf-%{wordsize}.h
+# multilib header hack
+# we only apply this to known Red Hat multilib arches, per bug #233091
+case `uname -i` in
+  i386 | ppc | s390)
+    wordsize="32"
+    ;;
+  x86_64 | ppc64 | s390x)
+    wordsize="64"
+    ;;
+  *)
+    wordsize=""
+    ;;
+esac
 
-cat >$RPM_BUILD_ROOT%{_includedir}/tiffconf.h <<EOF
+if test -n "$wordsize"
+then
+  mv $RPM_BUILD_ROOT%{_includedir}/tiffconf.h \
+     $RPM_BUILD_ROOT%{_includedir}/tiffconf-$wordsize.h
+
+  cat >$RPM_BUILD_ROOT%{_includedir}/tiffconf.h <<EOF
 #ifndef TIFFCONF_H_MULTILIB
 #define TIFFCONF_H_MULTILIB
 
@@ -88,6 +120,8 @@ cat >$RPM_BUILD_ROOT%{_includedir}/tiffconf.h <<EOF
 
 #endif
 EOF
+
+fi
 
 # don't include documentation Makefiles, they are a multilib hazard
 find html -name 'Makefile*' | xargs rm
@@ -115,7 +149,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libtiffxx.so
 %{_mandir}/man3/*
 
+%files static
+%defattr(-,root,root)
+%{_libdir}/*.a
+
 %changelog
+* Thu Jul 19 2007 Tom Lane <tgl@redhat.com> 3.8.2-8
+- Restore static library to distribution, in a separate -static subpackage
+Resolves: #219905
+- Don't apply multilib header hack to unrecognized architectures
+Resolves: #233091
+- Remove documentation for programs we don't ship
+Resolves: #205079
+Related: #185145
+
 * Tue Jan 16 2007 Tom Lane <tgl@redhat.com> 3.8.2-7
 - Remove Makefiles from the shipped /usr/share/doc/html directories
 Resolves: bz #222729
@@ -304,7 +351,7 @@ Resolves: bz #222729
 * Thu May 18 2000 Nalin Dahyabhai <nalin@redhat.com>
 - fix build rooting
 - fix syntax error in configure script
-- move man pages to %{_mandir}
+- move man pages to {_mandir}
 
 * Wed May 17 2000 Nalin Dahyabhai <nalin@redhat.com>
 - rebuild for an errata release
