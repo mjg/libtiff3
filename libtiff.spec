@@ -1,8 +1,8 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 8%{?dist}
-License: BSD
+Release: 9%{?dist}
+License: libtiff
 Group: System Environment/Libraries
 URL: http://www.libtiff.org/
 
@@ -154,6 +154,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Wed Aug 22 2007 Tom Lane <tgl@redhat.com> 3.8.2-9
+- Update License tag
+- Rebuild to fix Fedora toolchain issues
+
 * Thu Jul 19 2007 Tom Lane <tgl@redhat.com> 3.8.2-8
 - Restore static library to distribution, in a separate -static subpackage
 Resolves: #219905
