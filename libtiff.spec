@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.libtiff.org/
@@ -154,6 +154,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Tue Feb 19 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 3.8.2-10
+- Autorebuild for GCC 4.3
+
 * Wed Aug 22 2007 Tom Lane <tgl@redhat.com> 3.8.2-9
 - Update License tag
 - Rebuild to fix Fedora toolchain issues
