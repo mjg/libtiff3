@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.libtiff.org/
@@ -11,6 +11,7 @@ Patch0: tiffsplit-overflow.patch
 Patch1: libtiff-3.8.2-ormandy.patch
 Patch2: libtiff-3.8.2-CVE-2006-2193.patch
 Patch3: libtiff-3.8.2-mantypo.patch
+Patch4: libtiff-3.8.2-lzw-bugs.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -56,8 +57,10 @@ necessary for some boot packages.
 %patch1 -p1 -b .ormandy
 %patch2 -p1 -b .CVE-2006-2193
 %patch3 -p1 -b .mantypo
+%patch4 -p1
 
 %build
+export CFLAGS="%{optflags} -fno-strict-aliasing"
 %configure
 make %{?_smp_mflags}
 
@@ -154,6 +157,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Tue Aug 26 2008 Tom Lane <tgl@redhat.com> 3.8.2-11
+- Fix LZW decoding vulnerabilities (CVE-2008-2327)
+Related: #458674
+- Use -fno-strict-aliasing per rpmdiff recommendation
+
 * Tue Feb 19 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 3.8.2-10
 - Autorebuild for GCC 4.3
 
