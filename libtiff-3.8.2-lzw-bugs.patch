@@ -1,4 +1,4 @@
-Fixes for CVE-2008-2327
+Fixes for CVE-2008-2327 and CVE-2009-2285
 
 
 diff -Naur tiff-3.8.2.orig/libtiff/tif_lzw.c tiff-3.8.2/libtiff/tif_lzw.c
@@ -27,7 +27,7 @@ diff -Naur tiff-3.8.2.orig/libtiff/tif_lzw.c tiff-3.8.2/libtiff/tif_lzw.c
  			NextCode(tif, sp, bp, code, GetNextCode);
  			if (code == CODE_EOI)
  				break;
-+			if (code == CODE_CLEAR) {
++			if (code >= CODE_CLEAR) {
 +				TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
 +				"LZWDecode: Corrupted LZW table at scanline %d",
 +				tif->tif_row);
@@ -47,7 +47,7 @@ diff -Naur tiff-3.8.2.orig/libtiff/tif_lzw.c tiff-3.8.2/libtiff/tif_lzw.c
  			NextCode(tif, sp, bp, code, GetNextCodeCompat);
  			if (code == CODE_EOI)
  				break;
-+			if (code == CODE_CLEAR) {
++			if (code >= CODE_CLEAR) {
 +				TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
 +				"LZWDecodeCompat: Corrupted LZW table at scanline %d",
 +				tif->tif_row);
