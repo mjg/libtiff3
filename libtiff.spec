@@ -1,10 +1,10 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 11%{?dist}
+Release: 13%{?dist}
 License: libtiff
 Group: System Environment/Libraries
-URL: http://www.libtiff.org/
+URL: http://www.remotesensing.org/libtiff/
 
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 Patch0: tiffsplit-overflow.patch
@@ -157,6 +157,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Wed Jul  1 2009 Tom Lane <tgl@redhat.com> 3.8.2-13
+- Fix some more LZW decoding vulnerabilities (CVE-2009-2285)
+Related: #507465
+- Update upstream URL
+
 * Tue Aug 26 2008 Tom Lane <tgl@redhat.com> 3.8.2-11
 - Fix LZW decoding vulnerabilities (CVE-2008-2327)
 Related: #458674
