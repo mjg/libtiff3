@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 13%{?dist}
+Release: 14%{?dist}
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
@@ -12,6 +12,7 @@ Patch1: libtiff-3.8.2-ormandy.patch
 Patch2: libtiff-3.8.2-CVE-2006-2193.patch
 Patch3: libtiff-3.8.2-mantypo.patch
 Patch4: libtiff-3.8.2-lzw-bugs.patch
+Patch5: libtiff-3.8.2-CVE-2009-2347.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -58,6 +59,7 @@ necessary for some boot packages.
 %patch2 -p1 -b .CVE-2006-2193
 %patch3 -p1 -b .mantypo
 %patch4 -p1
+%patch5 -p1
 
 %build
 export CFLAGS="%{optflags} -fno-strict-aliasing"
@@ -157,6 +159,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Mon Jul 13 2009 Tom Lane <tgl@redhat.com> 3.8.2-14
+- Fix buffer overrun risks caused by unchecked integer overflow (CVE-2009-2347)
+Related: #510041
+
 * Wed Jul  1 2009 Tom Lane <tgl@redhat.com> 3.8.2-13
 - Fix some more LZW decoding vulnerabilities (CVE-2009-2285)
 Related: #507465
