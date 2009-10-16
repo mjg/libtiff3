@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 15%{?dist}
+Release: 16%{?dist}
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
@@ -93,10 +93,10 @@ rm -f html/man/tiffsv.1.html
 # multilib header hack
 # we only apply this to known Red Hat multilib arches, per bug #233091
 case `uname -i` in
-  i386 | ppc | s390)
+  i386 | ppc | s390 | sparc )
     wordsize="32"
     ;;
-  x86_64 | ppc64 | s390x)
+  x86_64 | ppc64 | s390x | sparc64 )
     wordsize="64"
     ;;
   *)
@@ -159,6 +159,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Thu Oct 15 2009 Tom Lane <tgl@redhat.com> 3.8.2-16
+- add sparc/sparc64 to multilib header support
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.2-15
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
