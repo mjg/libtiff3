@@ -1,3 +1,7 @@
+This patch is needed for building the package as of F-11.  It can be
+dropped whenever autoconf 2.63 is no longer used on any live branch.
+
+
 diff -Naur tiff-3.9.2.orig/configure.ac tiff-3.9.2/configure.ac
 --- tiff-3.9.2.orig/configure.ac	2009-11-04 12:11:20.000000000 -0500
 +++ tiff-3.9.2/configure.ac	2009-12-03 12:52:41.000000000 -0500

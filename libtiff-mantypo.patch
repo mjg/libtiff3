@@ -1,3 +1,8 @@
+Minor typo, reported upstream at
+http://bugzilla.maptools.org/show_bug.cgi?id=2129
+This patch should not be needed as of libtiff 4.0.
+
+
 diff -Naur tiff-3.9.2.orig/man/tiffset.1 tiff-3.9.2/man/tiffset.1
 --- tiff-3.9.2.orig/man/tiffset.1	2006-04-20 08:17:19.000000000 -0400
 +++ tiff-3.9.2/man/tiffset.1	2009-12-03 12:11:58.000000000 -0500
