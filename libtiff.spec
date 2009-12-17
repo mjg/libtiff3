@@ -1,21 +1,22 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
-Version: 3.8.2
-Release: 15%{?dist}
+Version: 3.9.2
+Release: 2%{?dist}
+
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
 
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
-Patch0: tiffsplit-overflow.patch
-Patch1: libtiff-3.8.2-ormandy.patch
-Patch2: libtiff-3.8.2-CVE-2006-2193.patch
-Patch3: libtiff-3.8.2-mantypo.patch
-Patch4: libtiff-3.8.2-lzw-bugs.patch
-Patch5: libtiff-3.8.2-CVE-2009-2347.patch
+Patch1: libtiff-acversion.patch
+Patch2: libtiff-mantypo.patch
+Patch3: libtiff-CVE-2009-2347.patch
+Patch4: libtiff-jpeg-scanline.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
+BuildRequires: libtool automake autoconf
+
 %define LIBVER %(echo %{version} | cut -f 1-2 -d .)
 
 %description
@@ -54,12 +55,19 @@ necessary for some boot packages.
 %prep
 %setup -q -n tiff-%{version}
 
-%patch0 -p1 -b .overflow
-%patch1 -p1 -b .ormandy
-%patch2 -p1 -b .CVE-2006-2193
-%patch3 -p1 -b .mantypo
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 %patch4 -p1
-%patch5 -p1
+
+# Use build system's libtool.m4, not the one in the package.
+rm -f libtool.m4
+
+libtoolize --force  --copy
+aclocal -I . -I m4
+automake --add-missing --copy
+autoconf
+autoheader
 
 %build
 export CFLAGS="%{optflags} -fno-strict-aliasing"
@@ -71,7 +79,7 @@ LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH make check
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%makeinstall
+make DESTDIR=$RPM_BUILD_ROOT install
 
 # remove what we didn't want installed
 rm $RPM_BUILD_ROOT%{_libdir}/*.la
@@ -93,10 +101,10 @@ rm -f html/man/tiffsv.1.html
 # multilib header hack
 # we only apply this to known Red Hat multilib arches, per bug #233091
 case `uname -i` in
-  i386 | ppc | s390)
+  i386 | ppc | s390 | sparc )
     wordsize="32"
     ;;
-  x86_64 | ppc64 | s390x)
+  x86_64 | ppc64 | s390x | sparc64 )
     wordsize="64"
     ;;
   *)
@@ -159,6 +167,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Wed Dec 16 2009 Tom Lane <tgl@redhat.com> 3.9.2-2
+- Update to libtiff 3.9.2; stop carrying a lot of old patches
+Resolves: #520734
+Resolves: #543289
+- Apply Warmerdam's partial fix for bug #460322 ... better than nothing.
+Related: #460322
+- Use build system's libtool instead of what package contains;
+  among other cleanup this gets rid of unwanted rpath specs in executables
+Related: #226049
+- add sparc/sparc64 to multilib header support
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.8.2-15
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
