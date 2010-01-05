@@ -17,7 +17,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
 BuildRequires: libtool automake autoconf
 
-%define LIBVER %(echo %{version} | cut -f 1-2 -d .)
+%global LIBVER %(echo %{version} | cut -f 1-2 -d .)
 
 %description
 The libtiff package contains a library of functions for manipulating
