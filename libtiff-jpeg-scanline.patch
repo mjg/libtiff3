@@ -1,10 +1,29 @@
-Upstream patch that partially fixes bug #460322.  The tiffcmp case is
-still there, but this is a step forward anyhow, so going with it for now.
+Upstream patch for tiff2ps core dump noted in bug #460322.  (Note that
+the tiffcmp crash mentioned there is really a different bug.)
+Now also incorporating Adam Goode's patch for bug #552360.  See
+http://bugzilla.maptools.org/show_bug.cgi?id=1936
 
 
+diff -Naur tiff-3.9.2.orig/libtiff/tif_dir.c tiff-3.9.2/libtiff/tif_dir.c
+--- tiff-3.9.2.orig/libtiff/tif_dir.c	2008-12-31 19:10:43.000000000 -0500
++++ tiff-3.9.2/libtiff/tif_dir.c	2010-01-05 19:59:12.000000000 -0500
+@@ -1100,6 +1100,13 @@
+ 	 */
+ 	tif->tif_flags &= ~TIFF_ISTILED;
+ 
++	/*
++	 * Clear other directory-specific fields.
++	 */
++	tif->tif_tilesize = 0;
++	tif->tif_scanlinesize = 0;
++	
++
+ 	return (1);
+ }
+ 
 diff -Naur tiff-3.9.2.orig/libtiff/tif_jpeg.c tiff-3.9.2/libtiff/tif_jpeg.c
 --- tiff-3.9.2.orig/libtiff/tif_jpeg.c	2009-08-30 12:21:46.000000000 -0400
-+++ tiff-3.9.2/libtiff/tif_jpeg.c	2009-12-05 16:48:56.000000000 -0500
++++ tiff-3.9.2/libtiff/tif_jpeg.c	2010-01-05 19:59:12.000000000 -0500
 @@ -1613,7 +1613,11 @@
  	 * Must recalculate cached tile size in case sampling state changed.
  	 * Should we really be doing this now if image size isn't set? 
