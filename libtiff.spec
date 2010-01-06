@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.9.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -12,6 +12,7 @@ Patch1: libtiff-acversion.patch
 Patch2: libtiff-mantypo.patch
 Patch3: libtiff-CVE-2009-2347.patch
 Patch4: libtiff-jpeg-scanline.patch
+Patch5: libtiff-scanlinesize.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -68,6 +69,7 @@ image files using the libtiff library.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -179,6 +181,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Tue Jan  5 2010 Tom Lane <tgl@redhat.com> 3.9.2-3
+- Apply Adam Goode's fix for Warmerdam's fix
+Resolves: #552360
+Resolves: #533353
+- Add some defenses to prevent tiffcmp from crashing on downsampled JPEG
+  images; this isn't enough to make it really work correctly though
+Related: #460322
+
 * Wed Dec 16 2009 Tom Lane <tgl@redhat.com> 3.9.2-2
 - Apply Warmerdam's partial fix for bug #460322 ... better than nothing.
 Related: #460322
