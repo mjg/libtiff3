@@ -1,0 +1,71 @@
+tiffcp doesn't have any code to copy subsampled images.  It can handle
+JPEG-compressed input anyway by the expedient of telling the codec to
+convert to RGB (and thereby upsample), but otherwise we have to punt to
+avoid buffer overruns.  Per bug #588784, bug #460653, and upstream bug
+http://bugzilla.maptools.org/show_bug.cgi?id=2097
+
+This patch is a bit more than minimally sized because it rearranges
+some of the existing code for simplicity.
+
+
+diff -Naur tiff-3.8.2.orig/tools/tiffcp.c tiff-3.8.2/tools/tiffcp.c
+--- tiff-3.8.2.orig/tools/tiffcp.c	2006-03-21 11:42:51.000000000 -0500
++++ tiff-3.8.2/tools/tiffcp.c	2010-06-13 16:08:21.000000000 -0400
+@@ -540,6 +540,7 @@
+ tiffcp(TIFF* in, TIFF* out)
+ {
+ 	uint16 bitspersample, samplesperpixel;
++	uint16 input_compression, input_photometric;
+ 	copyFunc cf;
+ 	uint32 width, length;
+ 	struct cpTag* p;
+@@ -552,26 +553,30 @@
+ 		TIFFSetField(out, TIFFTAG_COMPRESSION, compression);
+ 	else
+ 		CopyField(TIFFTAG_COMPRESSION, compression);
++	TIFFGetFieldDefaulted(in, TIFFTAG_COMPRESSION, &input_compression);
++	TIFFGetFieldDefaulted(in, TIFFTAG_PHOTOMETRIC, &input_photometric);
++	if (input_compression == COMPRESSION_JPEG) {
++		/* Force conversion to RGB */
++		TIFFSetField(in, TIFFTAG_JPEGCOLORMODE, JPEGCOLORMODE_RGB);
++	} else if (input_photometric == PHOTOMETRIC_YCBCR) {
++		/* Otherwise, can't handle subsampled input */
++		uint16 subsamplinghor,subsamplingver;
++
++		TIFFGetFieldDefaulted(in, TIFFTAG_YCBCRSUBSAMPLING,
++				      &subsamplinghor, &subsamplingver);
++		if (subsamplinghor!=1 || subsamplingver!=1) {
++			fprintf(stderr, "tiffcp: %s: Can't copy/convert subsampled image.\n",
++				TIFFFileName(in));
++			return FALSE;
++		}
++	}
+ 	if (compression == COMPRESSION_JPEG) {
+-	    uint16 input_compression, input_photometric;
+-
+-            if (TIFFGetField(in, TIFFTAG_COMPRESSION, &input_compression)
+-                 && input_compression == COMPRESSION_JPEG) {
+-                TIFFSetField(in, TIFFTAG_JPEGCOLORMODE, JPEGCOLORMODE_RGB);
+-            }
+-	    if (TIFFGetField(in, TIFFTAG_PHOTOMETRIC, &input_photometric)) {
+-		if(input_photometric == PHOTOMETRIC_RGB) {
+-			if (jpegcolormode == JPEGCOLORMODE_RGB)
+-		    		TIFFSetField(out, TIFFTAG_PHOTOMETRIC,
+-					     PHOTOMETRIC_YCBCR);
+-			else
+-		    		TIFFSetField(out, TIFFTAG_PHOTOMETRIC,
+-					     PHOTOMETRIC_RGB);
+-		} else
+-			TIFFSetField(out, TIFFTAG_PHOTOMETRIC,
+-				     input_photometric);
+-	    }
+-        }
++		if (input_photometric == PHOTOMETRIC_RGB &&
++		    jpegcolormode == JPEGCOLORMODE_RGB)
++		  TIFFSetField(out, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_YCBCR);
++		else
++		  TIFFSetField(out, TIFFTAG_PHOTOMETRIC, input_photometric);
++	}
+ 	else if (compression == COMPRESSION_SGILOG
+ 		 || compression == COMPRESSION_SGILOG24)
+ 		TIFFSetField(out, TIFFTAG_PHOTOMETRIC,

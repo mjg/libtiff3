@@ -1,0 +1,39 @@
+Use the spec-mandated default YCbCrSubSampling values in strip size
+calculations, if the YCBCRSUBSAMPLING tag hasn't been provided.
+See bug #603703.
+
+Filed upstream at http://bugzilla.maptools.org/show_bug.cgi?id=2215
+
+
+diff -Naur tiff-3.8.2.orig/libtiff/tif_strip.c tiff-3.8.2/libtiff/tif_strip.c
+--- tiff-3.8.2.orig/libtiff/tif_strip.c	2006-03-21 11:42:50.000000000 -0500
++++ tiff-3.8.2/libtiff/tif_strip.c	2010-06-16 21:46:16.000000000 -0400
+@@ -124,9 +124,9 @@
+                 uint16 ycbcrsubsampling[2];
+                 tsize_t w, scanline, samplingarea;
+ 
+-                TIFFGetField( tif, TIFFTAG_YCBCRSUBSAMPLING, 
+-                              ycbcrsubsampling + 0, 
+-                              ycbcrsubsampling + 1 );
++                TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING,
++				      ycbcrsubsampling + 0,
++				      ycbcrsubsampling + 1);
+ 
+ 		samplingarea = ycbcrsubsampling[0]*ycbcrsubsampling[1];
+ 		if (samplingarea == 0) {
+@@ -234,11 +234,11 @@
+ 		    && !isUpSampled(tif)) {
+ 			uint16 ycbcrsubsampling[2];
+ 
+-			TIFFGetField(tif, TIFFTAG_YCBCRSUBSAMPLING, 
+-				     ycbcrsubsampling + 0,
+-				     ycbcrsubsampling + 1);
++			TIFFGetFieldDefaulted(tif, TIFFTAG_YCBCRSUBSAMPLING,
++					      ycbcrsubsampling + 0,
++					      ycbcrsubsampling + 1);
+ 
+-			if (ycbcrsubsampling[0] == 0) {
++			if (ycbcrsubsampling[0]*ycbcrsubsampling[1] == 0) {
+ 				TIFFErrorExt(tif->tif_clientdata, tif->tif_name,
+ 					     "Invalid YCbCr subsampling");
+ 				return 0;

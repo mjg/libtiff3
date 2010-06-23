@@ -1,0 +1,166 @@
+Fix for bug #554371: unknown tags have to be processed in a separate pass,
+because tags might become known when we register a codec after processing
+the Compression tag.  We *must not* create an anonymous field entry that
+conflicts with a codec-registered field!  The original logic could result
+in a crash if any such tags appear before Compression.
+
+An additional bug in the original logic is that it could mishandle unknown
+tags with numbers higher than the last known tag.
+
+Filed upstream at http://bugzilla.maptools.org/show_bug.cgi?id=2210
+
+
+diff -Naur tiff-3.8.2.orig/libtiff/tif_dirread.c tiff-3.8.2/libtiff/tif_dirread.c
+--- tiff-3.8.2.orig/libtiff/tif_dirread.c	2006-03-21 11:42:50.000000000 -0500
++++ tiff-3.8.2/libtiff/tif_dirread.c	2010-06-16 21:28:47.000000000 -0400
+@@ -80,7 +80,9 @@
+ 	size_t fix;
+ 	uint16 dircount;
+ 	toff_t nextdiroff;
++	uint16 previous_tag = 0;
+ 	int diroutoforderwarning = 0;
++	int haveunknowntags = 0;
+ 	toff_t* new_dirlist;
+ 
+ 	tif->tif_diroff = tif->tif_nextdiroff;
+@@ -234,7 +236,7 @@
+ 	fix = 0;
+ 	for (dp = dir, n = dircount; n > 0; n--, dp++) {
+ 
+-		if (fix >= tif->tif_nfields || dp->tdir_tag == IGNORE)
++		if (dp->tdir_tag == IGNORE)
+ 			continue;
+                
+ 		/*
+@@ -242,38 +244,26 @@
+ 		 * directory tags (violating the spec).  Handle
+ 		 * it here, but be obnoxious (maybe they'll fix it?).
+ 		 */
+-		if (dp->tdir_tag < tif->tif_fieldinfo[fix]->field_tag) {
++		if (dp->tdir_tag < previous_tag) {
+ 			if (!diroutoforderwarning) {
+ 				TIFFWarningExt(tif->tif_clientdata, module,
+ 	"%s: invalid TIFF directory; tags are not sorted in ascending order",
+ 					       tif->tif_name);
+ 				diroutoforderwarning = 1;
+ 			}
+-			fix = 0;			/* O(n^2) */
+ 		}
++		previous_tag = dp->tdir_tag;
++		if (fix >= tif->tif_nfields ||
++		    dp->tdir_tag < tif->tif_fieldinfo[fix]->field_tag)
++			fix = 0;			/* O(n^2) */
+ 		while (fix < tif->tif_nfields &&
+ 		       tif->tif_fieldinfo[fix]->field_tag < dp->tdir_tag)
+ 			fix++;
+ 		if (fix >= tif->tif_nfields ||
+ 		    tif->tif_fieldinfo[fix]->field_tag != dp->tdir_tag) {
+-
+-					TIFFWarningExt(tif->tif_clientdata,
+-						       module,
+-                        "%s: unknown field with tag %d (0x%x) encountered",
+-						       tif->tif_name,
+-						       dp->tdir_tag,
+-						       dp->tdir_tag,
+-						       dp->tdir_type);
+-
+-                    TIFFMergeFieldInfo(tif,
+-                                       _TIFFCreateAnonFieldInfo(tif,
+-						dp->tdir_tag,
+-						(TIFFDataType) dp->tdir_type),
+-				       1 );
+-                    fix = 0;
+-                    while (fix < tif->tif_nfields &&
+-                           tif->tif_fieldinfo[fix]->field_tag < dp->tdir_tag)
+-			fix++;
++			/* Unknown tag ... we'll deal with it below */
++			haveunknowntags = 1;
++			continue;
+ 		}
+ 		/*
+ 		 * Null out old tags that we ignore.
+@@ -287,8 +277,8 @@
+ 		 * Check data type.
+ 		 */
+ 		fip = tif->tif_fieldinfo[fix];
+-		while (dp->tdir_type != (unsigned short) fip->field_type
+-                       && fix < tif->tif_nfields) {
++		while (fix < tif->tif_nfields &&
++		       dp->tdir_type != (unsigned short) fip->field_type) {
+ 			if (fip->field_type == TIFF_ANY)	/* wildcard */
+ 				break;
+                         fip = tif->tif_fieldinfo[++fix];
+@@ -362,6 +352,73 @@
+ 	}
+ 
+ 	/*
++	 * If we saw any unknown tags, make an extra pass over the directory
++	 * to deal with them.  This must be done separately because the tags
++	 * could have become known when we registered a codec after finding
++	 * the Compression tag.  In a correctly-sorted directory there's
++	 * no problem because Compression will come before any codec-private
++	 * tags, but if the sorting is wrong that might not hold.
++	 */
++	if (haveunknowntags) {
++	    fix = 0;
++	    for (dp = dir, n = dircount; n > 0; n--, dp++) {
++		if (dp->tdir_tag == IGNORE)
++			continue;
++		if (fix >= tif->tif_nfields ||
++		    dp->tdir_tag < tif->tif_fieldinfo[fix]->field_tag)
++			fix = 0;			/* O(n^2) */
++		while (fix < tif->tif_nfields &&
++		       tif->tif_fieldinfo[fix]->field_tag < dp->tdir_tag)
++			fix++;
++		if (fix >= tif->tif_nfields ||
++		    tif->tif_fieldinfo[fix]->field_tag != dp->tdir_tag) {
++			TIFFWarningExt(tif->tif_clientdata,
++				       module,
++                        "%s: unknown field with tag %d (0x%x) encountered",
++				       tif->tif_name,
++				       dp->tdir_tag,
++				       dp->tdir_tag,
++				       dp->tdir_type);
++
++			TIFFMergeFieldInfo(tif,
++                                       _TIFFCreateAnonFieldInfo(tif,
++						dp->tdir_tag,
++						(TIFFDataType) dp->tdir_type),
++					   1 );
++			fix = 0;
++			while (fix < tif->tif_nfields &&
++			       tif->tif_fieldinfo[fix]->field_tag < dp->tdir_tag)
++				fix++;
++			if (fix >= tif->tif_nfields ||
++			    tif->tif_fieldinfo[fix]->field_tag != dp->tdir_tag) {
++				/* Can only get here if TIFFMergeFieldInfo failed */
++				dp->tdir_tag = IGNORE;
++				continue;
++			}
++		}
++		/*
++		 * Check data type.
++		 */
++		fip = tif->tif_fieldinfo[fix];
++		while (fix < tif->tif_nfields &&
++		       dp->tdir_type != (unsigned short) fip->field_type) {
++			if (fip->field_type == TIFF_ANY)	/* wildcard */
++				break;
++			fip = tif->tif_fieldinfo[++fix];
++			if (fix >= tif->tif_nfields ||
++			    fip->field_tag != dp->tdir_tag) {
++				TIFFWarningExt(tif->tif_clientdata, module,
++			"%s: wrong data type %d for \"%s\"; tag ignored",
++					    tif->tif_name, dp->tdir_type,
++					    tif->tif_fieldinfo[fix-1]->field_name);
++				dp->tdir_tag = IGNORE;
++				break;
++			}
++		}
++	    }
++	}
++
++	/*
+ 	 * Allocate directory structure and setup defaults.
+ 	 */
+ 	if (!TIFFFieldSet(tif, FIELD_IMAGEDIMENSIONS)) {

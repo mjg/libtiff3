@@ -1,0 +1,61 @@
+Upstream patch for tiff2ps core dump noted in bug #460322.  (Note that
+the tiffcmp crash mentioned there is really a different bug.)
+Now also incorporating Adam Goode's patch for bug #552360.  See
+http://bugzilla.maptools.org/show_bug.cgi?id=1936
+
+
+diff -Naur tiff-3.8.2.orig/libtiff/tif_dir.c tiff-3.8.2/libtiff/tif_dir.c
+--- tiff-3.8.2.orig/libtiff/tif_dir.c	2006-03-21 11:42:50.000000000 -0500
++++ tiff-3.8.2/libtiff/tif_dir.c	2010-06-13 15:32:55.000000000 -0400
+@@ -1081,6 +1081,13 @@
+          */
+         tif->tif_flags &= ~TIFF_ISTILED;
+ 
++	/*
++	 * Clear other directory-specific fields.
++	 */
++	tif->tif_tilesize = 0;
++	tif->tif_scanlinesize = 0;
++	
++
+ 	return (1);
+ }
+ 
+diff -Naur tiff-3.8.2.orig/libtiff/tif_jpeg.c tiff-3.8.2/libtiff/tif_jpeg.c
+--- tiff-3.8.2.orig/libtiff/tif_jpeg.c	2006-03-21 11:42:50.000000000 -0500
++++ tiff-3.8.2/libtiff/tif_jpeg.c	2010-06-13 15:34:28.000000000 -0400
+@@ -1582,7 +1582,10 @@
+ 		 * Must recalculate cached tile size
+ 		 * in case sampling state changed.
+ 		 */
+-		tif->tif_tilesize = isTiled(tif) ? TIFFTileSize(tif) : (tsize_t) -1;
++		if( tif->tif_tilesize > 0 )
++		  tif->tif_tilesize = isTiled(tif) ? TIFFTileSize(tif) : (tsize_t) -1;
++		if(tif->tif_scanlinesize > 0 )
++		  tif->tif_scanlinesize = TIFFScanlineSize(tif); 
+ 		return (1);			/* pseudo tag */
+ 	case TIFFTAG_JPEGTABLESMODE:
+ 		sp->jpegtablesmode = va_arg(ap, int);
+@@ -1668,13 +1671,21 @@
+ 			return;
+     }
+     else
+-	{
++    {
+         if( !TIFFFillStrip( tif, 0 ) )
+             return;
+     }
+ 
+     TIFFSetField( tif, TIFFTAG_YCBCRSUBSAMPLING, 
+                   (uint16) sp->h_sampling, (uint16) sp->v_sampling );
++
++    /*
++    ** We want to clear the loaded strip so the application has time
++    ** to set JPEGCOLORMODE or other behavior modifiers.  This essentially
++    ** undoes the JPEGPreDecode triggers by TIFFFileStrip().  (#1936)
++    */
++    tif->tif_curstrip = -1;
++
+ #endif /* CHECK_JPEG_YCBCR_SUBSAMPLING */
+ }
+ 

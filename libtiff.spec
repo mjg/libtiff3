@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.8.2
-Release: 14%{?dist}
+Release: 15%{?dist}
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
@@ -13,6 +13,16 @@ Patch2: libtiff-3.8.2-CVE-2006-2193.patch
 Patch3: libtiff-3.8.2-mantypo.patch
 Patch4: libtiff-3.8.2-lzw-bugs.patch
 Patch5: libtiff-3.8.2-CVE-2009-2347.patch
+Patch6: libtiff-jpeg-scanline.patch
+Patch7: libtiff-ycbcr-clamp.patch
+Patch8: libtiff-CVE-2010-1411.patch
+Patch9: libtiff-CVE-2010-2065.patch
+Patch10: libtiff-tiffcp-no-subsample.patch
+Patch11: libtiff-tiff2pdf-bugs.patch
+Patch12: libtiff-unknown-tags.patch
+Patch13: libtiff-3samples.patch
+Patch14: libtiff-subsampling.patch
+Patch15: libtiff-tiffdump.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -55,11 +65,21 @@ necessary for some boot packages.
 %setup -q -n tiff-%{version}
 
 %patch0 -p1 -b .overflow
-%patch1 -p1 -b .ormandy
+%patch1 -p1
 %patch2 -p1 -b .CVE-2006-2193
 %patch3 -p1 -b .mantypo
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
 
 %build
 export CFLAGS="%{optflags} -fno-strict-aliasing"
@@ -159,6 +179,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Tue Jun 22 2010 Tom Lane <tgl@redhat.com> 3.8.2-15
+- Add fixes for multiple SIGSEGV problems, including fixes for
+  CVE-2010-1411, CVE-2010-2065
+Resolves: #554371, #583081
+Related: #460653, #588784, #601274, #592361
+Related: #603081, #603699, #603703
+
 * Mon Jul 13 2009 Tom Lane <tgl@redhat.com> 3.8.2-14
 - Fix buffer overrun risks caused by unchecked integer overflow (CVE-2009-2347)
 Related: #510041

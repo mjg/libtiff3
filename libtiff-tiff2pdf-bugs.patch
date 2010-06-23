@@ -1,0 +1,208 @@
+Fix assorted bugs in tiff2pdf: missing "return" in t2p_read_tiff_size() causes
+t2p->tiff_datasize to be set entirely wrong for COMPRESSION_JPEG case,
+resulting in memory stomp if actual size is larger.  Also, there are a
+bunch of places that try to memset() a malloc'd buffer before checking
+for malloc failure, which would result in core dump if there actually
+were a failure.  In 3.8.2 it's also using the wrong size variable for
+the output of TIFFGetField(input, TIFFTAG_JPEGTABLES, ...)
+
+Filed upstream at http://bugzilla.maptools.org/show_bug.cgi?id=2211
+
+
+diff -Naur tiff-3.8.2.orig/tools/tiff2pdf.c tiff-3.8.2/tools/tiff2pdf.c
+--- tiff-3.8.2.orig/tools/tiff2pdf.c	2006-03-21 11:42:51.000000000 -0500
++++ tiff-3.8.2/tools/tiff2pdf.c	2010-06-13 16:43:40.000000000 -0400
+@@ -1758,7 +1758,6 @@
+ 	uint32* sbc=NULL;
+ #if defined(JPEG_SUPPORT) || defined (OJPEG_SUPPORT)
+ 	unsigned char* jpt=NULL;
+-	uint16 xuint16=0;
+ 	tstrip_t i=0;
+ 	tstrip_t stripcount=0;
+ #endif
+@@ -1825,9 +1824,10 @@
+ #endif
+ #ifdef JPEG_SUPPORT
+ 		if(t2p->tiff_compression == COMPRESSION_JPEG){
+-			if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &xuint16, &jpt) != 0 ){
+-				if(xuint16>4){
+-					t2p->tiff_datasize+= xuint16;
++			uint32 count = 0;
++			if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &count, &jpt) != 0 ){
++				if(count>4){
++					t2p->tiff_datasize+= count;
+ 					t2p->tiff_datasize -=2; /* don't use EOI of header */
+ 				}
+ 			} else {
+@@ -1846,6 +1846,7 @@
+ 				t2p->tiff_datasize -=4; /* don't use SOI or EOI of strip */
+ 			}
+ 			t2p->tiff_datasize +=2; /* use EOI of last strip */
++			return;
+ 		}
+ #endif
+ 		(void) 0;
+@@ -1894,9 +1895,10 @@
+ #endif
+ #ifdef JPEG_SUPPORT
+ 			if(t2p->tiff_compression==COMPRESSION_JPEG){
+-				if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &xuint16, &jpt)!=0){
+-					if(xuint16>4){
+-						t2p->tiff_datasize+=xuint16;
++				uint32 count = 0;
++				if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &count, &jpt)!=0){
++					if(count>4){
++						t2p->tiff_datasize+=count;
+ 						t2p->tiff_datasize-=4; /* don't use EOI of header or SOI of tile */
+ 					}
+ 				}
+@@ -2078,7 +2080,6 @@
+ #ifdef ZIP_SUPPORT
+ 		if(t2p->pdf_compression == T2P_COMPRESS_ZIP){
+ 			buffer= (unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+-                        memset(buffer, 0, t2p->tiff_datasize);
+ 			if(buffer==NULL){
+ 				TIFFError(TIFF2PDF_MODULE, 
+ 					"Can't allocate %u bytes of memory for t2p_readwrite_pdf_image, %s", 
+@@ -2087,6 +2088,7 @@
+ 				t2p->t2p_error = T2P_ERR_ERROR;
+ 				return(0);
+ 			}
++                        memset(buffer, 0, t2p->tiff_datasize);
+ 			TIFFReadRawStrip(input, 0, (tdata_t) buffer, t2p->tiff_datasize);
+ 			if (t2p->tiff_fillorder==FILLORDER_LSB2MSB){
+ 					TIFFReverseBits(buffer, t2p->tiff_datasize);
+@@ -2101,7 +2103,6 @@
+ 
+ 			if(t2p->tiff_dataoffset != 0){
+ 				buffer= (unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+-                                memset(buffer, 0, t2p->tiff_datasize);
+ 				if(buffer==NULL){
+ 					TIFFError(TIFF2PDF_MODULE, 
+ 						"Can't allocate %u bytes of memory for t2p_readwrite_pdf_image, %s", 
+@@ -2110,6 +2111,7 @@
+ 					t2p->t2p_error = T2P_ERR_ERROR;
+ 					return(0);
+ 				}
++                                memset(buffer, 0, t2p->tiff_datasize);
+ 				if(t2p->pdf_ojpegiflength==0){
+ 					inputoffset=TIFFSeekFile(input, 0, SEEK_CUR);
+ 					TIFFSeekFile(input, t2p->tiff_dataoffset, SEEK_SET);
+@@ -2160,7 +2162,6 @@
+ 					return(0);
+ 				}
+ 				buffer=(unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+-                                memset(buffer, 0, t2p->tiff_datasize);
+ 				if(buffer==NULL){
+ 					TIFFError(TIFF2PDF_MODULE, 
+ 						"Can't allocate %u bytes of memory for t2p_readwrite_pdf_image, %s", 
+@@ -2169,6 +2170,7 @@
+ 					t2p->t2p_error = T2P_ERR_ERROR;
+ 					return(0);
+ 				}
++                                memset(buffer, 0, t2p->tiff_datasize);
+ 				_TIFFmemcpy(buffer, t2p->pdf_ojpegdata, t2p->pdf_ojpegdatalength);
+ 				bufferoffset=t2p->pdf_ojpegdatalength;
+ 				stripcount=TIFFNumberOfStrips(input);
+@@ -2200,8 +2202,8 @@
+ #endif
+ #ifdef JPEG_SUPPORT
+ 		if(t2p->tiff_compression == COMPRESSION_JPEG){
++			uint32 count = 0;
+ 			buffer= (unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+-                        memset(buffer, 0, t2p->tiff_datasize);
+ 			if(buffer==NULL){
+ 				TIFFError(TIFF2PDF_MODULE, 
+ 					"Can't allocate %u bytes of memory for t2p_readwrite_pdf_image, %s", 
+@@ -2210,10 +2212,11 @@
+ 				t2p->t2p_error = T2P_ERR_ERROR;
+ 				return(0);
+ 			}
+-			if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &xuint16_1, &jpt) != 0){
+-				if(xuint16_1>4){
+-					_TIFFmemcpy(buffer, jpt, xuint16_1);
+-					bufferoffset+=xuint16_1-2;
++                        memset(buffer, 0, t2p->tiff_datasize);
++			if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &count, &jpt) != 0){
++				if(count>4){
++					_TIFFmemcpy(buffer, jpt, count);
++					bufferoffset+=count-2;
+ 				}
+ 			}
+ 			stripcount=TIFFNumberOfStrips(input);
+@@ -2262,7 +2265,6 @@
+ 
+ 	if(t2p->pdf_sample==T2P_SAMPLE_NOTHING){
+ 		buffer = (unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+-                memset(buffer, 0, t2p->tiff_datasize);
+ 		if(buffer==NULL){
+ 			TIFFError(TIFF2PDF_MODULE, 
+ 				"Can't allocate %u bytes of memory for t2p_readwrite_pdf_image, %s", 
+@@ -2271,6 +2273,7 @@
+ 			t2p->t2p_error = T2P_ERR_ERROR;
+ 			return(0);
+ 		}
++                memset(buffer, 0, t2p->tiff_datasize);
+ 		stripsize=TIFFStripSize(input);
+ 		stripcount=TIFFNumberOfStrips(input);
+ 		for(i=0;i<stripcount;i++){
+@@ -2300,7 +2303,6 @@
+ 			stripcount=sepstripcount/t2p->tiff_samplesperpixel;
+ 			
+ 			buffer = (unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+-                        memset(buffer, 0, t2p->tiff_datasize);
+ 			if(buffer==NULL){
+ 				TIFFError(TIFF2PDF_MODULE, 
+ 					"Can't allocate %u bytes of memory for t2p_readwrite_pdf_image, %s", 
+@@ -2309,6 +2311,7 @@
+ 				t2p->t2p_error = T2P_ERR_ERROR;
+ 				return(0);
+ 			}
++                        memset(buffer, 0, t2p->tiff_datasize);
+ 			samplebuffer = (unsigned char*) _TIFFmalloc(stripsize);
+ 			if(samplebuffer==NULL){
+ 				TIFFError(TIFF2PDF_MODULE, 
+@@ -2349,7 +2352,6 @@
+ 		}
+ 
+ 		buffer = (unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+-                memset(buffer, 0, t2p->tiff_datasize);
+ 		if(buffer==NULL){
+ 			TIFFError(TIFF2PDF_MODULE, 
+ 				"Can't allocate %u bytes of memory for t2p_readwrite_pdf_image, %s", 
+@@ -2358,6 +2360,7 @@
+ 			t2p->t2p_error = T2P_ERR_ERROR;
+ 			return(0);
+ 		}
++                memset(buffer, 0, t2p->tiff_datasize);
+ 		stripsize=TIFFStripSize(input);
+ 		stripcount=TIFFNumberOfStrips(input);
+ 		for(i=0;i<stripcount;i++){
+@@ -2691,6 +2694,7 @@
+ #ifdef JPEG_SUPPORT
+ 		if(t2p->tiff_compression == COMPRESSION_JPEG){
+ 			unsigned char table_end[2];
++			uint32 count = 0;
+ 			buffer= (unsigned char*) _TIFFmalloc(t2p->tiff_datasize);
+ 			if(buffer==NULL){
+ 				TIFFError(TIFF2PDF_MODULE, 
+@@ -2701,14 +2705,14 @@
+ 				t2p->t2p_error = T2P_ERR_ERROR;
+ 				return(0);
+ 			}
+-			if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &xuint16_1, &jpt) != 0) {
+-				if(xuint16_1 > 0){
+-					_TIFFmemcpy(buffer, jpt, xuint16_1);
+-					bufferoffset += xuint16_1 - 2;
++			if(TIFFGetField(input, TIFFTAG_JPEGTABLES, &count, &jpt) != 0) {
++				if(count > 0){
++					_TIFFmemcpy(buffer, jpt, count);
++					bufferoffset += count - 2;
+ 					table_end[0] = buffer[bufferoffset-2];
+ 					table_end[1] = buffer[bufferoffset-1];
+ 				}
+-				if(xuint16_1 > 0) {
++				if(count > 0) {
+ 					xuint32 = bufferoffset;
+ 					bufferoffset += TIFFReadRawTile(
+ 						input, 
