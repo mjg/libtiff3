@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
-Version: 3.9.2
-Release: 3%{?dist}
+Version: 3.9.4
+Release: 1%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -10,9 +10,14 @@ URL: http://www.remotesensing.org/libtiff/
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 Patch1: libtiff-acversion.patch
 Patch2: libtiff-mantypo.patch
-Patch3: libtiff-CVE-2009-2347.patch
-Patch4: libtiff-jpeg-scanline.patch
-Patch5: libtiff-scanlinesize.patch
+Patch3: libtiff-scanlinesize.patch
+Patch4: libtiff-getimage-64bit.patch
+Patch5: libtiff-ycbcr-clamp.patch
+Patch6: libtiff-3samples.patch
+Patch7: libtiff-subsampling.patch
+Patch8: libtiff-unknown-fix.patch
+Patch9: libtiff-checkbytecount.patch
+Patch10: libtiff-tiffdump.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -61,6 +66,11 @@ necessary for some boot packages.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -169,6 +179,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/*.a
 
 %changelog
+* Tue Jun 22 2010 Tom Lane <tgl@redhat.com> 3.9.4-1
+- Update to libtiff 3.9.4, for numerous bug fixes including fixes for
+  CVE-2010-1411, CVE-2010-2065, CVE-2010-2067
+Resolves: #554371
+Related: #460653, #588784, #601274, #599576, #592361, #603024
+- Add fixes for multiple SIGSEGV problems
+Resolves: #583081
+Related: #603081, #603699, #603703
+
 * Tue Jan  5 2010 Tom Lane <tgl@redhat.com> 3.9.2-3
 - Apply Adam Goode's fix for Warmerdam's fix
 Resolves: #552360
