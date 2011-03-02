@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.9.4
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -18,6 +18,8 @@ Patch7: libtiff-subsampling.patch
 Patch8: libtiff-unknown-fix.patch
 Patch9: libtiff-checkbytecount.patch
 Patch10: libtiff-tiffdump.patch
+Patch11: libtiff-CVE-2011-0192.patch
+Patch12: libtiff-gif2tiff-overrun.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -80,6 +82,8 @@ image files using the libtiff library.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
+%patch12 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -191,6 +195,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Wed Mar  2 2011 Tom Lane <tgl@redhat.com> 3.9.4-3
+- Add patch for CVE-2011-0192
+Resolves: #681672
+- Fix non-security-critical potential SIGSEGV in gif2tiff
+Related: #648820
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.9.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
