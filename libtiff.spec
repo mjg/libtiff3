@@ -1,26 +1,13 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
-Version: 3.9.4
-Release: 4%{?dist}
+Version: 3.9.5
+Release: 1%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
 
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
-Patch1: libtiff-acversion.patch
-Patch2: libtiff-mantypo.patch
-Patch3: libtiff-scanlinesize.patch
-Patch4: libtiff-getimage-64bit.patch
-Patch5: libtiff-ycbcr-clamp.patch
-Patch6: libtiff-3samples.patch
-Patch7: libtiff-subsampling.patch
-Patch8: libtiff-unknown-fix.patch
-Patch9: libtiff-checkbytecount.patch
-Patch10: libtiff-tiffdump.patch
-Patch11: libtiff-CVE-2011-0192.patch
-Patch12: libtiff-CVE-2011-1167.patch
-Patch13: libtiff-gif2tiff-overrun.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -72,20 +59,6 @@ image files using the libtiff library.
 
 %prep
 %setup -q -n tiff-%{version}
-
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -197,6 +170,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Tue Apr 12 2011 Tom Lane <tgl@redhat.com> 3.9.5-1
+- Update to libtiff 3.9.5, incorporating all our previous patches plus other
+  fixes, notably the fix for CVE-2009-5022
+Related: #695885
+
 * Mon Mar 21 2011 Tom Lane <tgl@redhat.com> 3.9.4-4
 - Fix incorrect fix for CVE-2011-0192
 Resolves: #684007
