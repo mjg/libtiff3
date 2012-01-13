@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 3.9.5
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -170,6 +170,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.9.5-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Tue Apr 12 2011 Tom Lane <tgl@redhat.com> 3.9.5-1
 - Update to libtiff 3.9.5, incorporating all our previous patches plus other
   fixes, notably the fix for CVE-2009-5022
