@@ -1,21 +1,30 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
-Version: 3.9.5
-Release: 3%{?dist}
+Version: 4.0.1
+Release: 1%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
 
-Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
+# This SRPM includes a copy of libtiff 3.9.x, which is provided as a stopgap
+# measure to satisfy dependencies on libtiff.so.3 until all applications can
+# be recompiled.  The compatibility library is placed in a separate
+# sub-RPM, libtiff-compat.  There is no support for recompiling source code
+# against the old version.
+%global prevversion 3.9.5
+
+Source0: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
+
+Source1: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{prevversion}.tar.gz
 
 Patch1: libtiff-CVE-2012-1173.patch
+# same patch for prevversion:
+Patch2: libtiff-CVE-2012-1173-3.9.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
-BuildRequires: libtool automake autoconf
-
-%global LIBVER %(echo %{version} | cut -f 1-2 -d .)
+BuildRequires: libtool automake autoconf pkgconfig
 
 %description
 The libtiff package contains a library of functions for manipulating
@@ -29,7 +38,8 @@ format image files.
 %package devel
 Summary: Development tools for programs which will use the libtiff library
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: pkgconfig
 
 %description devel
 This package contains the header files and documentation necessary for
@@ -43,7 +53,7 @@ install the libtiff package.
 %package static
 Summary: Static TIFF image format file library
 Group: Development/Libraries
-Requires: %{name}-devel = %{version}-%{release}
+Requires: %{name}-devel%{?_isa} = %{version}-%{release}
 
 %description static
 The libtiff-static package contains the statically linkable version of libtiff.
@@ -53,11 +63,18 @@ necessary for some boot packages.
 %package tools
 Summary: Command-line utility programs for manipulating TIFF files
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description tools
 This package contains command-line programs for manipulating TIFF format
 image files using the libtiff library.
+
+%package compat
+Summary: Temporary backwards-compatibility copy of old libtiff
+Group: Development/Libraries
+
+%description compat
+This package contains shared libraries (only) for libtiff 3.9.x.
 
 %prep
 %setup -q -n tiff-%{version}
@@ -73,15 +90,47 @@ automake --add-missing --copy
 autoconf
 autoheader
 
+# And the same for the compatibility package ...
+	tar xfz %{SOURCE1}
+	pushd tiff-%{prevversion}
+%patch2 -p1
+	# Use build system's libtool.m4, not the one in the package.
+	rm -f libtool.m4
+	libtoolize --force  --copy
+	aclocal -I . -I m4
+	automake --add-missing --copy
+	autoconf
+	autoheader
+	popd
+
 %build
 export CFLAGS="%{optflags} -fno-strict-aliasing"
-%configure
+%configure --enable-ld-version-script
 make %{?_smp_mflags}
 
 LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH make check
 
+# And the same for the compatibility package ...
+	pushd tiff-%{prevversion}
+	%configure
+	make %{?_smp_mflags}
+	popd
+
 %install
 rm -rf $RPM_BUILD_ROOT
+
+# install compat package first, then remove unwanted files
+	pushd tiff-%{prevversion}
+	make DESTDIR=$RPM_BUILD_ROOT install
+	rm -rf $RPM_BUILD_ROOT%{_bindir}
+	rm -rf $RPM_BUILD_ROOT%{_includedir}
+	rm -rf $RPM_BUILD_ROOT%{_mandir}
+	rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/
+	rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libtiff*.pc
+	rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff*.so
+	rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff*.a
+	rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+	popd
 
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -150,11 +199,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun -p /sbin/ldconfig
 
+%post compat -p /sbin/ldconfig
+%postun compat -p /sbin/ldconfig
+
 %files
 %defattr(-,root,root,0755)
 %doc COPYRIGHT README RELEASE-DATE VERSION
-%{_libdir}/libtiff.so.*
-%{_libdir}/libtiffxx.so.*
+%{_libdir}/libtiff.so.5*
+%{_libdir}/libtiffxx.so.5*
 
 %files devel
 %defattr(-,root,root,0755)
@@ -162,6 +214,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*
 %{_libdir}/libtiff.so
 %{_libdir}/libtiffxx.so
+%{_libdir}/pkgconfig/libtiff*.pc
 %{_mandir}/man3/*
 
 %files static
@@ -173,7 +226,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/*
 %{_mandir}/man1/*
 
+%files compat
+%defattr(-,root,root)
+%{_libdir}/libtiff.so.3*
+%{_libdir}/libtiffxx.so.3*
+
 %changelog
+* Sun May  6 2012 Tom Lane <tgl@redhat.com> 4.0.1-1
+- Update to libtiff 4.0.1, adds BigTIFF support and other features;
+  library soname is bumped from libtiff.so.3 to libtiff.so.5
+Resolves: #782383
+- Temporarily package 3.9.5 shared library (only) in libtiff-compat subpackage
+  so that dependent packages won't be broken while rebuilding proceeds
+
 * Thu Apr  5 2012 Tom Lane <tgl@redhat.com> 3.9.5-3
 - Add fix for CVE-2012-1173
 Resolves: #CVE-2012-1173
