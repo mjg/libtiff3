@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -23,7 +23,7 @@ Patch1: libtiff-CVE-2012-1173.patch
 Patch2: libtiff-CVE-2012-1173-3.9.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: zlib-devel libjpeg-devel
+BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
 
 %description
@@ -112,7 +112,7 @@ LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH make check
 
 # And the same for the compatibility package ...
 	pushd tiff-%{prevversion}
-	%configure
+	%configure --disable-jbig
 	make %{?_smp_mflags}
 	popd
 
@@ -232,6 +232,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libtiffxx.so.3*
 
 %changelog
+* Fri Jun  1 2012 Tom Lane <tgl@redhat.com> 4.0.1-2
+- Enable JBIG support
+Resolves: #826240
+
 * Sun May  6 2012 Tom Lane <tgl@redhat.com> 4.0.1-1
 - Update to libtiff 4.0.1, adds BigTIFF support and other features;
   library soname is bumped from libtiff.so.3 to libtiff.so.5
