@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
-Version: 4.0.1
-Release: 2%{?dist}
+Version: 4.0.2
+Release: 1%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -12,15 +12,16 @@ URL: http://www.remotesensing.org/libtiff/
 # be recompiled.  The compatibility library is placed in a separate
 # sub-RPM, libtiff-compat.  There is no support for recompiling source code
 # against the old version.
-%global prevversion 3.9.5
+%global prevversion 3.9.6
 
 Source0: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 
 Source1: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{prevversion}.tar.gz
 
-Patch1: libtiff-CVE-2012-1173.patch
-# same patch for prevversion:
+# these patches are only needed for prevversion:
 Patch2: libtiff-CVE-2012-1173-3.9.patch
+Patch3: libtiff-CVE-2012-2088.patch
+Patch4: libtiff-CVE-2012-2113.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
@@ -79,8 +80,6 @@ This package contains shared libraries (only) for libtiff 3.9.x.
 %prep
 %setup -q -n tiff-%{version}
 
-%patch1 -p1
-
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
 
@@ -94,6 +93,8 @@ autoheader
 	tar xfz %{SOURCE1}
 	pushd tiff-%{prevversion}
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 	# Use build system's libtool.m4, not the one in the package.
 	rm -f libtool.m4
 	libtoolize --force  --copy
@@ -232,6 +233,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libtiffxx.so.3*
 
 %changelog
+* Thu Jun 28 2012 Tom Lane <tgl@redhat.com> 4.0.2-1
+- Update to libtiff 4.0.2, includes fix for CVE-2012-2113
+  (note that CVE-2012-2088 does not apply to 4.0.x)
+- Update libtiff-compat to 3.9.6 and add patches to it for
+  CVE-2012-2088, CVE-2012-2113
+Resolves: #832866
+
 * Fri Jun  1 2012 Tom Lane <tgl@redhat.com> 4.0.1-2
 - Enable JBIG support
 Resolves: #826240
