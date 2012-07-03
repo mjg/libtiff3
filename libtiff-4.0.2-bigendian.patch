@@ -1,0 +1,15 @@
+diff -up tiff-4.0.2/test/raw_decode.c.bigendian tiff-4.0.2/test/raw_decode.c
+--- tiff-4.0.2/test/raw_decode.c.bigendian	2012-07-03 15:27:37.168543695 +0200
++++ tiff-4.0.2/test/raw_decode.c	2012-07-03 15:28:47.795051599 +0200
+@@ -85,9 +85,9 @@ static int check_rgb_pixel( int pixel, i
+ static int check_rgba_pixel( int pixel, int red, int green, int blue, int alpha, unsigned char *buffer ) {
+ 	/* RGBA images are upside down - adjust for normal ordering */
+ 	int adjusted_pixel = pixel % 128 + (127 - (pixel/128)) * 128;
+-	unsigned char *rgba = buffer + 4 * adjusted_pixel;
++	unsigned int *rgba = (unsigned int*)(buffer + 4 * adjusted_pixel);
+ 	
+-	if( rgba[0] == red && rgba[1] == green && rgba[2] == blue && rgba[3] == alpha ) {
++	if( TIFFGetR(*rgba) == red && TIFFGetG(*rgba) == green && TIFFGetB(*rgba) == blue && TIFFGetA(*rgba) == alpha ) {
+ 		return 0;
+ 	}
+ 

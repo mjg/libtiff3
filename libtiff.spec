@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -22,6 +22,7 @@ Source1: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{prevversion}.tar.gz
 Patch2: libtiff-CVE-2012-1173-3.9.patch
 Patch3: libtiff-CVE-2012-2088.patch
 Patch4: libtiff-CVE-2012-2113.patch
+Patch5: libtiff-4.0.2-bigendian.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
@@ -103,6 +104,7 @@ autoheader
 	autoconf
 	autoheader
 	popd
+%patch5 -p1
 
 %build
 export CFLAGS="%{optflags} -fno-strict-aliasing"
@@ -233,6 +235,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libtiffxx.so.3*
 
 %changelog
+* Tue Jul 03 2012 Karsten Hopp <karsten@redhat.com> 4.0.2-2
+- add opensuse bigendian patch to fix raw_decode self check failure on ppc*, s390*
+
 * Thu Jun 28 2012 Tom Lane <tgl@redhat.com> 4.0.2-1
 - Update to libtiff 4.0.2, includes fix for CVE-2012-2113
   (note that CVE-2012-2088 does not apply to 4.0.x)
