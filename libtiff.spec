@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.2
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -235,6 +235,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libtiffxx.so.3*
 
 %changelog
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Tue Jul 03 2012 Karsten Hopp <karsten@redhat.com> 4.0.2-2
 - add opensuse bigendian patch to fix raw_decode self check failure on ppc*, s390*
 
