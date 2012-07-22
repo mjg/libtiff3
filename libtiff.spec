@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.2
-Release: 3%{?dist}
+Release: 4%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -18,11 +18,14 @@ Source0: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 
 Source1: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{prevversion}.tar.gz
 
+Patch1: libtiff-4.0.2-bigendian.patch
+Patch2: libtiff-CVE-2012-3401.patch
+
 # these patches are only needed for prevversion:
-Patch2: libtiff-CVE-2012-1173-3.9.patch
-Patch3: libtiff-CVE-2012-2088.patch
-Patch4: libtiff-CVE-2012-2113.patch
-Patch5: libtiff-4.0.2-bigendian.patch
+Patch10: libtiff-CVE-2012-1173-3.9.patch
+Patch11: libtiff-CVE-2012-2088.patch
+Patch12: libtiff-CVE-2012-2113.patch
+Patch13: libtiff-CVE-2012-3401-3.9.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
@@ -81,6 +84,9 @@ This package contains shared libraries (only) for libtiff 3.9.x.
 %prep
 %setup -q -n tiff-%{version}
 
+%patch1 -p1
+%patch2 -p1
+
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
 
@@ -93,9 +99,10 @@ autoheader
 # And the same for the compatibility package ...
 	tar xfz %{SOURCE1}
 	pushd tiff-%{prevversion}
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
 	# Use build system's libtool.m4, not the one in the package.
 	rm -f libtool.m4
 	libtoolize --force  --copy
@@ -104,7 +111,6 @@ autoheader
 	autoconf
 	autoheader
 	popd
-%patch5 -p1
 
 %build
 export CFLAGS="%{optflags} -fno-strict-aliasing"
@@ -235,6 +241,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libtiffxx.so.3*
 
 %changelog
+* Sun Jul 22 2012 Tom Lane <tgl@redhat.com> 4.0.2-4
+- Add patches for CVE-2012-3401
+Resolves: #841736
+
 * Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
