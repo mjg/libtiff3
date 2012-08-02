@@ -1,0 +1,1372 @@
+Upstream patch to add accessor functions for the now-opaque struct TIFFField.
+Normally we'd just wait for 4.0.3 to have these, but I'd like to get freeimage
+fixed without waiting for upstream to do a release.
+
+
+diff -Naur tiff-4.0.2.orig/configure.com tiff-4.0.2/configure.com
+--- tiff-4.0.2.orig/configure.com	2007-11-23 05:01:34.000000000 -0500
++++ tiff-4.0.2/configure.com	2012-07-29 13:28:51.048258582 -0400
+@@ -1,4 +1,4 @@
+-$! $Id: configure.com,v 1.2 2007-11-23 10:01:34 dron Exp $
++$! $Id: configure.com,v 1.3 2012-07-29 15:45:29 tgl Exp $
+ $!
+ $! OpenVMS configure procedure for libtiff
+ $! (c) Alexey Chupahin  22-NOV-2007
+@@ -503,6 +503,12 @@
+ TIFFFindFieldInfoByName=PROCEDURE,-
+ TIFFFieldWithName=PROCEDURE,-
+ TIFFFieldWithTag=PROCEDURE,-
++TIFFFieldTag=PROCEDURE,-
++TIFFFieldName=PROCEDURE,-
++TIFFFieldDataType=PROCEDURE,-
++TIFFFieldPassCount=PROCEDURE,-
++TIFFFieldReadCount=PROCEDURE,-
++TIFFFieldWriteCount=PROCEDURE,-
+ TIFFCurrentDirOffset=PROCEDURE,-
+ TIFFWriteCheck=PROCEDURE,-
+ TIFFRGBAImageOK=PROCEDURE,-
+@@ -648,6 +654,12 @@
+ UNIVERSAL=TIFFFindFieldInfoByName
+ UNIVERSAL=TIFFFieldWithName
+ UNIVERSAL=TIFFFieldWithTag
++UNIVERSAL=TIFFFieldTag
++UNIVERSAL=TIFFFieldName
++UNIVERSAL=TIFFFieldDataType
++UNIVERSAL=TIFFFieldPassCount
++UNIVERSAL=TIFFFieldReadCount
++UNIVERSAL=TIFFFieldWriteCount
+ UNIVERSAL=TIFFCurrentDirOffset
+ UNIVERSAL=TIFFWriteCheck
+ UNIVERSAL=TIFFRGBAImageOK
+diff -Naur tiff-4.0.2.orig/html/man/Makefile.am tiff-4.0.2/html/man/Makefile.am
+--- tiff-4.0.2.orig/html/man/Makefile.am	2007-07-13 10:57:41.000000000 -0400
++++ tiff-4.0.2/html/man/Makefile.am	2012-07-29 13:28:51.049258558 -0400
+@@ -39,6 +39,12 @@
+ 	TIFFcolor.3tiff.html \
+ 	TIFFDataWidth.3tiff.html \
+ 	TIFFError.3tiff.html \
++	TIFFFieldDataType.3tiff.html \
++	TIFFFieldName.3tiff.html \
++	TIFFFieldPassCount.3tiff.html \
++	TIFFFieldReadCount.3tiff.html \
++	TIFFFieldTag.3tiff.html \
++	TIFFFieldWriteCount.3tiff.html \
+ 	TIFFFlush.3tiff.html \
+ 	TIFFGetField.3tiff.html \
+ 	TIFFmemory.3tiff.html \
+diff -Naur tiff-4.0.2.orig/html/man/TIFFFieldDataType.3tiff.html tiff-4.0.2/html/man/TIFFFieldDataType.3tiff.html
+--- tiff-4.0.2.orig/html/man/TIFFFieldDataType.3tiff.html	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/html/man/TIFFFieldDataType.3tiff.html	2012-07-29 13:28:51.050258537 -0400
+@@ -0,0 +1,89 @@
++<!-- Creator     : groff version 1.21 -->
++<!-- CreationDate: Sun Jul 29 12:12:01 2012 -->
++<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
++"http://www.w3.org/TR/html4/loose.dtd">
++<html>
++<head>
++<meta name="generator" content="groff -Thtml, see www.gnu.org">
++<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
++<meta name="Content-Style" content="text/css">
++<style type="text/css">
++       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       h1      { text-align: center }
++</style>
++<title>TIFFFieldDataType</title>
++
++</head>
++<body>
++
++<h1 align="center">TIFFFieldDataType</h1>
++
++<a href="#NAME">NAME</a><br>
++<a href="#SYNOPSIS">SYNOPSIS</a><br>
++<a href="#DESCRIPTION">DESCRIPTION</a><br>
++<a href="#RETURN VALUES">RETURN VALUES</a><br>
++<a href="#SEE ALSO">SEE ALSO</a><br>
++
++<hr>
++
++
++<h2>NAME
++<a name="NAME"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em">TIFFFieldDataType
++&minus; Get TIFF data type from field information</p>
++
++<h2>SYNOPSIS
++<a name="SYNOPSIS"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>#include
++&lt;tiffio.h&gt;</b></p>
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFDataType
++TIFFFieldDataType(const TIFFField*</b>
++<i>fip</i><b>)</b></p>
++
++<h2>DESCRIPTION
++<a name="DESCRIPTION"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldDataType</b>
++returns the data type stored in a TIFF field.</p>
++
++<p style="margin-left:11%; margin-top: 1em"><i>fip</i> is a
++field information pointer previously returned by
++<b>TIFFFindField</b>, <b>TIFFFieldWithTag</b>, or
++<b>TIFFFieldWithName</b>.</p>
++
++<h2>RETURN VALUES
++<a name="RETURN VALUES"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldDataType</b>
++returns a member of the enum type <b>TIFFDataType</b>.</p>
++
++<h2>SEE ALSO
++<a name="SEE ALSO"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>libtiff</b>(3TIFF),</p>
++
++<p style="margin-left:11%; margin-top: 1em">Libtiff library
++home page: <b>http://www.remotesensing.org/libtiff/</b></p>
++<hr>
++</body>
++</html>
+diff -Naur tiff-4.0.2.orig/html/man/TIFFFieldName.3tiff.html tiff-4.0.2/html/man/TIFFFieldName.3tiff.html
+--- tiff-4.0.2.orig/html/man/TIFFFieldName.3tiff.html	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/html/man/TIFFFieldName.3tiff.html	2012-07-29 13:28:51.050258537 -0400
+@@ -0,0 +1,86 @@
++<!-- Creator     : groff version 1.21 -->
++<!-- CreationDate: Sun Jul 29 12:12:01 2012 -->
++<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
++"http://www.w3.org/TR/html4/loose.dtd">
++<html>
++<head>
++<meta name="generator" content="groff -Thtml, see www.gnu.org">
++<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
++<meta name="Content-Style" content="text/css">
++<style type="text/css">
++       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       h1      { text-align: center }
++</style>
++<title>TIFFFieldName</title>
++
++</head>
++<body>
++
++<h1 align="center">TIFFFieldName</h1>
++
++<a href="#NAME">NAME</a><br>
++<a href="#SYNOPSIS">SYNOPSIS</a><br>
++<a href="#DESCRIPTION">DESCRIPTION</a><br>
++<a href="#RETURN VALUES">RETURN VALUES</a><br>
++<a href="#SEE ALSO">SEE ALSO</a><br>
++
++<hr>
++
++
++<h2>NAME
++<a name="NAME"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em">TIFFFieldName
++&minus; Get TIFF field name from field information</p>
++
++<h2>SYNOPSIS
++<a name="SYNOPSIS"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>#include
++&lt;tiffio.h&gt;</b></p>
++
++<p style="margin-left:11%; margin-top: 1em"><b>const char*
++TIFFFieldName(const TIFFField*</b> <i>fip</i><b>)</b></p>
++
++<h2>DESCRIPTION
++<a name="DESCRIPTION"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldName</b>
++returns the textual name for a TIFF field.</p>
++
++<p style="margin-left:11%; margin-top: 1em"><i>fip</i> is a
++field information pointer previously returned by
++<b>TIFFFindField</b>, <b>TIFFFieldWithTag</b>, or
++<b>TIFFFieldWithName</b>.</p>
++
++<h2>RETURN VALUES
++<a name="RETURN VALUES"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldName</b>
++returns a constant C string.</p>
++
++<h2>SEE ALSO
++<a name="SEE ALSO"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>libtiff</b>(3TIFF),</p>
++
++<p style="margin-left:11%; margin-top: 1em">Libtiff library
++home page: <b>http://www.remotesensing.org/libtiff/</b></p>
++<hr>
++</body>
++</html>
+diff -Naur tiff-4.0.2.orig/html/man/TIFFFieldPassCount.3tiff.html tiff-4.0.2/html/man/TIFFFieldPassCount.3tiff.html
+--- tiff-4.0.2.orig/html/man/TIFFFieldPassCount.3tiff.html	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/html/man/TIFFFieldPassCount.3tiff.html	2012-07-29 13:28:51.050258537 -0400
+@@ -0,0 +1,98 @@
++<!-- Creator     : groff version 1.21 -->
++<!-- CreationDate: Sun Jul 29 12:12:01 2012 -->
++<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
++"http://www.w3.org/TR/html4/loose.dtd">
++<html>
++<head>
++<meta name="generator" content="groff -Thtml, see www.gnu.org">
++<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
++<meta name="Content-Style" content="text/css">
++<style type="text/css">
++       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       h1      { text-align: center }
++</style>
++<title>TIFFFieldPassCount</title>
++
++</head>
++<body>
++
++<h1 align="center">TIFFFieldPassCount</h1>
++
++<a href="#NAME">NAME</a><br>
++<a href="#SYNOPSIS">SYNOPSIS</a><br>
++<a href="#DESCRIPTION">DESCRIPTION</a><br>
++<a href="#RETURN VALUES">RETURN VALUES</a><br>
++<a href="#SEE ALSO">SEE ALSO</a><br>
++
++<hr>
++
++
++<h2>NAME
++<a name="NAME"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em">TIFFFieldPassCount
++&minus; Get whether to pass a count to TIFFGet/SetField</p>
++
++<h2>SYNOPSIS
++<a name="SYNOPSIS"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>#include
++&lt;tiffio.h&gt;</b></p>
++
++<p style="margin-left:11%; margin-top: 1em"><b>int
++TIFFFieldPassCount(const TIFFField*</b>
++<i>fip</i><b>)</b></p>
++
++<h2>DESCRIPTION
++<a name="DESCRIPTION"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldPassCount</b>
++returns true (nonzero) if <b>TIFFGetField</b> and
++<b>TIFFSetField</b> expect a <i>count</i> value to be passed
++before the actual data pointer.</p>
++
++<p style="margin-left:11%; margin-top: 1em"><i>fip</i> is a
++field information pointer previously returned by
++<b>TIFFFindField</b>, <b>TIFFFieldWithTag</b>, or
++<b>TIFFFieldWithName</b>.</p>
++
++<p style="margin-left:11%; margin-top: 1em">When a
++<i>count</i> is required, it will be of type <b>uint32</b>
++when <b>TIFFFieldReadCount</b> reports
++<b>TIFF_VARIABLE2</b>, and of type <b>uint16</b> otherwise.
++(This distinction is critical for use of
++<b>TIFFGetField</b>, but normally not so for use of
++<b>TIFFSetField</b>.)</p>
++
++<h2>RETURN VALUES
++<a name="RETURN VALUES"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldPassCount</b>
++returns an integer that is always 1 (true) or 0 (false).</p>
++
++<h2>SEE ALSO
++<a name="SEE ALSO"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>libtiff</b>(3TIFF),</p>
++
++<p style="margin-left:11%; margin-top: 1em">Libtiff library
++home page: <b>http://www.remotesensing.org/libtiff/</b></p>
++<hr>
++</body>
++</html>
+diff -Naur tiff-4.0.2.orig/html/man/TIFFFieldReadCount.3tiff.html tiff-4.0.2/html/man/TIFFFieldReadCount.3tiff.html
+--- tiff-4.0.2.orig/html/man/TIFFFieldReadCount.3tiff.html	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/html/man/TIFFFieldReadCount.3tiff.html	2012-07-29 13:28:51.051258516 -0400
+@@ -0,0 +1,101 @@
++<!-- Creator     : groff version 1.21 -->
++<!-- CreationDate: Sun Jul 29 12:12:01 2012 -->
++<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
++"http://www.w3.org/TR/html4/loose.dtd">
++<html>
++<head>
++<meta name="generator" content="groff -Thtml, see www.gnu.org">
++<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
++<meta name="Content-Style" content="text/css">
++<style type="text/css">
++       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       h1      { text-align: center }
++</style>
++<title>TIFFFieldReadCount</title>
++
++</head>
++<body>
++
++<h1 align="center">TIFFFieldReadCount</h1>
++
++<a href="#NAME">NAME</a><br>
++<a href="#SYNOPSIS">SYNOPSIS</a><br>
++<a href="#DESCRIPTION">DESCRIPTION</a><br>
++<a href="#RETURN VALUES">RETURN VALUES</a><br>
++<a href="#SEE ALSO">SEE ALSO</a><br>
++
++<hr>
++
++
++<h2>NAME
++<a name="NAME"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em">TIFFFieldReadCount
++&minus; Get number of values to be read from field</p>
++
++<h2>SYNOPSIS
++<a name="SYNOPSIS"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>#include
++&lt;tiffio.h&gt;</b></p>
++
++<p style="margin-left:11%; margin-top: 1em"><b>int
++TIFFFieldReadCount(const TIFFField*</b>
++<i>fip</i><b>)</b></p>
++
++<h2>DESCRIPTION
++<a name="DESCRIPTION"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldReadCount</b>
++returns the number of values available to be read from the
++specified TIFF field; that is, the number of arguments that
++should be supplied to <b>TIFFGetField</b>. For most field
++types this is a small positive integer, typically 1 or 2,
++but there are some special values: <b><br>
++TIFF_VARIABLE</b> indicates that a variable number of values
++is possible; then, a <b>uint16</b> <i>count</i> argument and
++a pointer <i>data</i> argument must be supplied to
++<b>TIFFGetField</b>. <b><br>
++TIFF_VARIABLE2</b> is the same as <b>TIFF_VARIABLE</b>
++except that the <i>count</i> argument must have type
++<b>uint32</b>. <b><br>
++TIFF_SPP</b> indicates that the number of arguments is equal
++to the image&rsquo;s number of samples per pixel.</p>
++
++<p style="margin-left:11%; margin-top: 1em"><i>fip</i> is a
++field information pointer previously returned by
++<b>TIFFFindField</b>, <b>TIFFFieldWithTag</b>, or
++<b>TIFFFieldWithName</b>.</p>
++
++<h2>RETURN VALUES
++<a name="RETURN VALUES"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldReadCount</b>
++returns an integer.</p>
++
++<h2>SEE ALSO
++<a name="SEE ALSO"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>libtiff</b>(3TIFF),</p>
++
++<p style="margin-left:11%; margin-top: 1em">Libtiff library
++home page: <b>http://www.remotesensing.org/libtiff/</b></p>
++<hr>
++</body>
++</html>
+diff -Naur tiff-4.0.2.orig/html/man/TIFFFieldTag.3tiff.html tiff-4.0.2/html/man/TIFFFieldTag.3tiff.html
+--- tiff-4.0.2.orig/html/man/TIFFFieldTag.3tiff.html	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/html/man/TIFFFieldTag.3tiff.html	2012-07-29 13:28:51.051258516 -0400
+@@ -0,0 +1,88 @@
++<!-- Creator     : groff version 1.21 -->
++<!-- CreationDate: Sun Jul 29 12:12:01 2012 -->
++<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
++"http://www.w3.org/TR/html4/loose.dtd">
++<html>
++<head>
++<meta name="generator" content="groff -Thtml, see www.gnu.org">
++<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
++<meta name="Content-Style" content="text/css">
++<style type="text/css">
++       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       h1      { text-align: center }
++</style>
++<title>TIFFFieldTag</title>
++
++</head>
++<body>
++
++<h1 align="center">TIFFFieldTag</h1>
++
++<a href="#NAME">NAME</a><br>
++<a href="#SYNOPSIS">SYNOPSIS</a><br>
++<a href="#DESCRIPTION">DESCRIPTION</a><br>
++<a href="#RETURN VALUES">RETURN VALUES</a><br>
++<a href="#SEE ALSO">SEE ALSO</a><br>
++
++<hr>
++
++
++<h2>NAME
++<a name="NAME"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em">TIFFFieldTag
++&minus; Get TIFF field tag value from field information</p>
++
++<h2>SYNOPSIS
++<a name="SYNOPSIS"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>#include
++&lt;tiffio.h&gt;</b></p>
++
++<p style="margin-left:11%; margin-top: 1em"><b>uint32
++TIFFFieldTag(const TIFFField*</b> <i>fip</i><b>)</b></p>
++
++<h2>DESCRIPTION
++<a name="DESCRIPTION"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldTag</b>
++returns the numeric tag value for a TIFF field. This can be
++compared to various constants exported by the <b>libtiff</b>
++header files, such as <b>TIFFTAG_IMAGEWIDTH</b>.</p>
++
++<p style="margin-left:11%; margin-top: 1em"><i>fip</i> is a
++field information pointer previously returned by
++<b>TIFFFindField</b>, <b>TIFFFieldWithTag</b>, or
++<b>TIFFFieldWithName</b>.</p>
++
++<h2>RETURN VALUES
++<a name="RETURN VALUES"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldTag</b>
++returns an integer tag value.</p>
++
++<h2>SEE ALSO
++<a name="SEE ALSO"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>libtiff</b>(3TIFF),</p>
++
++<p style="margin-left:11%; margin-top: 1em">Libtiff library
++home page: <b>http://www.remotesensing.org/libtiff/</b></p>
++<hr>
++</body>
++</html>
+diff -Naur tiff-4.0.2.orig/html/man/TIFFFieldWriteCount.3tiff.html tiff-4.0.2/html/man/TIFFFieldWriteCount.3tiff.html
+--- tiff-4.0.2.orig/html/man/TIFFFieldWriteCount.3tiff.html	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/html/man/TIFFFieldWriteCount.3tiff.html	2012-07-29 13:28:51.051258516 -0400
+@@ -0,0 +1,108 @@
++<!-- Creator     : groff version 1.21 -->
++<!-- CreationDate: Sun Jul 29 12:12:01 2012 -->
++<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
++"http://www.w3.org/TR/html4/loose.dtd">
++<html>
++<head>
++<meta name="generator" content="groff -Thtml, see www.gnu.org">
++<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
++<meta name="Content-Style" content="text/css">
++<style type="text/css">
++       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
++       h1      { text-align: center }
++</style>
++<title>TIFFFieldWriteCount</title>
++
++</head>
++<body>
++
++<h1 align="center">TIFFFieldWriteCount</h1>
++
++<a href="#NAME">NAME</a><br>
++<a href="#SYNOPSIS">SYNOPSIS</a><br>
++<a href="#DESCRIPTION">DESCRIPTION</a><br>
++<a href="#RETURN VALUES">RETURN VALUES</a><br>
++<a href="#SEE ALSO">SEE ALSO</a><br>
++
++<hr>
++
++
++<h2>NAME
++<a name="NAME"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em">TIFFFieldWriteCount
++&minus; Get number of values to be written to field</p>
++
++<h2>SYNOPSIS
++<a name="SYNOPSIS"></a>
++</h2>
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>#include
++&lt;tiffio.h&gt;</b></p>
++
++<p style="margin-left:11%; margin-top: 1em"><b>int
++TIFFFieldWriteCount(const TIFFField*</b>
++<i>fip</i><b>)</b></p>
++
++<h2>DESCRIPTION
++<a name="DESCRIPTION"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldWriteCount</b>
++returns the number of values to be written into the
++specified TIFF field; that is, the number of arguments that
++should be supplied to <b>TIFFSetField</b>. For most field
++types this is a small positive integer, typically 1 or 2,
++but there are some special values: <b><br>
++TIFF_VARIABLE</b> indicates that a variable number of values
++is possible; then, a <b>uint16</b> <i>count</i> argument and
++a pointer <i>data</i> argument must be supplied to
++<b>TIFFSetField</b>. <b><br>
++TIFF_VARIABLE2</b> is the same as <b>TIFF_VARIABLE</b>
++except that the <i>count</i> argument must have type
++<b>uint32</b>. (On most modern machines, this makes no
++practical difference, and the <i>count</i> argument can
++simply be an <b>int</b> in either case.) <b><br>
++TIFF_SPP</b> indicates that the number of arguments must be
++equal to the image&rsquo;s number of samples per pixel.</p>
++
++<p style="margin-left:11%; margin-top: 1em"><i>fip</i> is a
++field information pointer previously returned by
++<b>TIFFFindField</b>, <b>TIFFFieldWithTag</b>, or
++<b>TIFFFieldWithName</b>.</p>
++
++<p style="margin-left:11%; margin-top: 1em">For most field
++types, <b>TIFFFieldWriteCount</b> returns the same value as
++<b>TIFFFieldReadCount</b>, but there are some
++exceptions.</p>
++
++<h2>RETURN VALUES
++<a name="RETURN VALUES"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>TIFFFieldWriteCount</b>
++returns an integer.</p>
++
++<h2>SEE ALSO
++<a name="SEE ALSO"></a>
++</h2>
++
++
++
++<p style="margin-left:11%; margin-top: 1em"><b>libtiff</b>(3TIFF),</p>
++
++<p style="margin-left:11%; margin-top: 1em">Libtiff library
++home page: <b>http://www.remotesensing.org/libtiff/</b></p>
++<hr>
++</body>
++</html>
+diff -Naur tiff-4.0.2.orig/libtiff/libtiff.def tiff-4.0.2/libtiff/libtiff.def
+--- tiff-4.0.2.orig/libtiff/libtiff.def	2011-06-21 15:13:24.000000000 -0400
++++ tiff-4.0.2/libtiff/libtiff.def	2012-07-29 13:28:51.052258497 -0400
+@@ -118,6 +118,12 @@
+ 	TIFFSetTagExtender
+ 	TIFFFieldWithName
+ 	TIFFFieldWithTag
++	TIFFFieldTag
++	TIFFFieldName
++	TIFFFieldDataType
++	TIFFFieldPassCount
++	TIFFFieldReadCount
++	TIFFFieldWriteCount
+ 	TIFFCurrentDirOffset
+ 	TIFFWriteCheck
+ 	TIFFRGBAImageOK
+diff -Naur tiff-4.0.2.orig/libtiff/tif_dirinfo.c tiff-4.0.2/libtiff/tif_dirinfo.c
+--- tiff-4.0.2.orig/libtiff/tif_dirinfo.c	2011-05-16 20:21:17.000000000 -0400
++++ tiff-4.0.2/libtiff/tif_dirinfo.c	2012-07-29 13:28:51.053258480 -0400
+@@ -556,6 +556,42 @@
+ 	return (fip);
+ }
+ 
++uint32
++TIFFFieldTag(const TIFFField* fip)
++{
++	return fip->field_tag;
++}
++
++const char *
++TIFFFieldName(const TIFFField* fip)
++{
++	return fip->field_name;
++}
++
++TIFFDataType
++TIFFFieldDataType(const TIFFField* fip)
++{
++	return fip->field_type;
++}
++
++int
++TIFFFieldPassCount(const TIFFField* fip)
++{
++	return fip->field_passcount;
++}
++
++int
++TIFFFieldReadCount(const TIFFField* fip)
++{
++	return fip->field_readcount;
++}
++
++int
++TIFFFieldWriteCount(const TIFFField* fip)
++{
++	return fip->field_writecount;
++}
++
+ const TIFFField*
+ _TIFFFindOrRegisterField(TIFF *tif, uint32 tag, TIFFDataType dt)
+ 
+diff -Naur tiff-4.0.2.orig/libtiff/tiffio.h tiff-4.0.2/libtiff/tiffio.h
+--- tiff-4.0.2.orig/libtiff/tiffio.h	2012-06-06 00:58:00.000000000 -0400
++++ tiff-4.0.2/libtiff/tiffio.h	2012-07-29 13:28:51.054258464 -0400
+@@ -1,4 +1,4 @@
+-/* $Id: tiffio.h,v 1.90 2012-06-06 04:58:00 fwarmerdam Exp $ */
++/* $Id: tiffio.h,v 1.91 2012-07-29 15:45:29 tgl Exp $ */
+ 
+ /*
+  * Copyright (c) 1988-1997 Sam Leffler
+@@ -319,6 +319,13 @@
+ extern const TIFFField* TIFFFieldWithTag(TIFF*, uint32);
+ extern const TIFFField* TIFFFieldWithName(TIFF*, const char *);
+ 
++extern uint32 TIFFFieldTag(const TIFFField*);
++extern const char* TIFFFieldName(const TIFFField*);
++extern TIFFDataType TIFFFieldDataType(const TIFFField*);
++extern int TIFFFieldPassCount(const TIFFField*);
++extern int TIFFFieldReadCount(const TIFFField*);
++extern int TIFFFieldWriteCount(const TIFFField*);
++
+ typedef int (*TIFFVSetMethod)(TIFF*, uint32, va_list);
+ typedef int (*TIFFVGetMethod)(TIFF*, uint32, va_list);
+ typedef void (*TIFFPrintMethod)(TIFF*, FILE*, long);
+diff -Naur tiff-4.0.2.orig/man/Makefile.am tiff-4.0.2/man/Makefile.am
+--- tiff-4.0.2.orig/man/Makefile.am	2007-02-24 10:03:51.000000000 -0500
++++ tiff-4.0.2/man/Makefile.am	2012-07-29 13:28:51.054258464 -0400
+@@ -59,6 +59,12 @@
+ 	TIFFcolor.3tiff \
+ 	TIFFDataWidth.3tiff \
+ 	TIFFError.3tiff \
++	TIFFFieldDataType.3tiff \
++	TIFFFieldName.3tiff \
++	TIFFFieldPassCount.3tiff \
++	TIFFFieldReadCount.3tiff \
++	TIFFFieldTag.3tiff \
++	TIFFFieldWriteCount.3tiff \
+ 	TIFFFlush.3tiff \
+ 	TIFFGetField.3tiff \
+ 	TIFFmemory.3tiff \
+diff -Naur tiff-4.0.2.orig/man/TIFFFieldDataType.3tiff tiff-4.0.2/man/TIFFFieldDataType.3tiff
+--- tiff-4.0.2.orig/man/TIFFFieldDataType.3tiff	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/man/TIFFFieldDataType.3tiff	2012-07-29 13:28:51.055258450 -0400
+@@ -0,0 +1,53 @@
++.\" $Id: TIFFFieldDataType.3tiff,v 1.1 2012-07-29 15:45:29 tgl Exp $
++.\"
++.\" Copyright (c) 2012, Tom Lane <tgl@sss.pgh.pa.us>
++.\"
++.\" Permission to use, copy, modify, distribute, and sell this software and 
++.\" its documentation for any purpose is hereby granted without fee, provided
++.\" that (i) the above copyright notices and this permission notice appear in
++.\" all copies of the software and related documentation, and (ii) the names of
++.\" Sam Leffler and Silicon Graphics may not be used in any advertising or
++.\" publicity relating to the software without the specific, prior written
++.\" permission of Sam Leffler and Silicon Graphics.
++.\" 
++.\" THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
++.\" EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
++.\" WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
++.\" 
++.\" IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
++.\" ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
++.\" OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
++.\" WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
++.\" LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
++.\" OF THIS SOFTWARE.
++.\"
++.if n .po 0
++.TH TIFFFieldDataType 3TIFF "July 26, 2012" "libtiff"
++.SH NAME
++TIFFFieldDataType \- Get TIFF data type from field information
++.SH SYNOPSIS
++.B "#include <tiffio.h>"
++.sp
++.BI "TIFFDataType TIFFFieldDataType(const TIFFField* " fip ")"
++.SH DESCRIPTION
++.BR TIFFFieldDataType
++returns the data type stored in a TIFF field.
++.P
++.I fip
++is a field information pointer previously returned by
++.BR TIFFFindField ,
++.BR TIFFFieldWithTag ,
++or
++.BR TIFFFieldWithName .
++.br
++.SH "RETURN VALUES"
++.br
++.BR TIFFFieldDataType
++returns a member of the enum type
++.BR TIFFDataType .
++.br
++.SH "SEE ALSO"
++.BR libtiff (3TIFF),
++.PP
++Libtiff library home page:
++.BR http://www.remotesensing.org/libtiff/
+diff -Naur tiff-4.0.2.orig/man/TIFFFieldName.3tiff tiff-4.0.2/man/TIFFFieldName.3tiff
+--- tiff-4.0.2.orig/man/TIFFFieldName.3tiff	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/man/TIFFFieldName.3tiff	2012-07-29 13:28:51.055258450 -0400
+@@ -0,0 +1,52 @@
++.\" $Id: TIFFFieldName.3tiff,v 1.1 2012-07-29 15:45:29 tgl Exp $
++.\"
++.\" Copyright (c) 2012, Tom Lane <tgl@sss.pgh.pa.us>
++.\"
++.\" Permission to use, copy, modify, distribute, and sell this software and 
++.\" its documentation for any purpose is hereby granted without fee, provided
++.\" that (i) the above copyright notices and this permission notice appear in
++.\" all copies of the software and related documentation, and (ii) the names of
++.\" Sam Leffler and Silicon Graphics may not be used in any advertising or
++.\" publicity relating to the software without the specific, prior written
++.\" permission of Sam Leffler and Silicon Graphics.
++.\" 
++.\" THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
++.\" EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
++.\" WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
++.\" 
++.\" IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
++.\" ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
++.\" OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
++.\" WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
++.\" LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
++.\" OF THIS SOFTWARE.
++.\"
++.if n .po 0
++.TH TIFFFieldName 3TIFF "July 26, 2012" "libtiff"
++.SH NAME
++TIFFFieldName \- Get TIFF field name from field information
++.SH SYNOPSIS
++.B "#include <tiffio.h>"
++.sp
++.BI "const char* TIFFFieldName(const TIFFField* " fip ")"
++.SH DESCRIPTION
++.BR TIFFFieldName
++returns the textual name for a TIFF field.
++.P
++.I fip
++is a field information pointer previously returned by
++.BR TIFFFindField ,
++.BR TIFFFieldWithTag ,
++or
++.BR TIFFFieldWithName .
++.br
++.SH "RETURN VALUES"
++.br
++.BR TIFFFieldName
++returns a constant C string.
++.br
++.SH "SEE ALSO"
++.BR libtiff (3TIFF),
++.PP
++Libtiff library home page:
++.BR http://www.remotesensing.org/libtiff/
+diff -Naur tiff-4.0.2.orig/man/TIFFFieldPassCount.3tiff tiff-4.0.2/man/TIFFFieldPassCount.3tiff
+--- tiff-4.0.2.orig/man/TIFFFieldPassCount.3tiff	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/man/TIFFFieldPassCount.3tiff	2012-07-29 13:28:51.055258450 -0400
+@@ -0,0 +1,73 @@
++.\" $Id: TIFFFieldPassCount.3tiff,v 1.1 2012-07-29 15:45:29 tgl Exp $
++.\"
++.\" Copyright (c) 2012, Tom Lane <tgl@sss.pgh.pa.us>
++.\"
++.\" Permission to use, copy, modify, distribute, and sell this software and 
++.\" its documentation for any purpose is hereby granted without fee, provided
++.\" that (i) the above copyright notices and this permission notice appear in
++.\" all copies of the software and related documentation, and (ii) the names of
++.\" Sam Leffler and Silicon Graphics may not be used in any advertising or
++.\" publicity relating to the software without the specific, prior written
++.\" permission of Sam Leffler and Silicon Graphics.
++.\" 
++.\" THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
++.\" EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
++.\" WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
++.\" 
++.\" IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
++.\" ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
++.\" OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
++.\" WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
++.\" LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
++.\" OF THIS SOFTWARE.
++.\"
++.if n .po 0
++.TH TIFFFieldPassCount 3TIFF "July 26, 2012" "libtiff"
++.SH NAME
++TIFFFieldPassCount \- Get whether to pass a count to TIFFGet/SetField
++.SH SYNOPSIS
++.B "#include <tiffio.h>"
++.sp
++.BI "int TIFFFieldPassCount(const TIFFField* " fip ")"
++.SH DESCRIPTION
++.BR TIFFFieldPassCount
++returns true (nonzero) if
++.BR TIFFGetField
++and
++.BR TIFFSetField
++expect a
++.I count
++value to be passed before the actual data pointer.
++.P
++.I fip
++is a field information pointer previously returned by
++.BR TIFFFindField ,
++.BR TIFFFieldWithTag ,
++or
++.BR TIFFFieldWithName .
++.P
++When a
++.I count
++is required, it will be of type
++.BR uint32
++when
++.BR TIFFFieldReadCount
++reports
++.BR TIFF_VARIABLE2 ,
++and of type
++.BR uint16
++otherwise.  (This distinction is critical for use of
++.BR TIFFGetField ,
++but normally not so for use of
++.BR TIFFSetField .)
++.br
++.SH "RETURN VALUES"
++.br
++.BR TIFFFieldPassCount
++returns an integer that is always 1 (true) or 0 (false).
++.br
++.SH "SEE ALSO"
++.BR libtiff (3TIFF),
++.PP
++Libtiff library home page:
++.BR http://www.remotesensing.org/libtiff/
+diff -Naur tiff-4.0.2.orig/man/TIFFFieldReadCount.3tiff tiff-4.0.2/man/TIFFFieldReadCount.3tiff
+--- tiff-4.0.2.orig/man/TIFFFieldReadCount.3tiff	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/man/TIFFFieldReadCount.3tiff	2012-07-29 13:28:51.055258450 -0400
+@@ -0,0 +1,77 @@
++.\" $Id: TIFFFieldReadCount.3tiff,v 1.1 2012-07-29 15:45:30 tgl Exp $
++.\"
++.\" Copyright (c) 2012, Tom Lane <tgl@sss.pgh.pa.us>
++.\"
++.\" Permission to use, copy, modify, distribute, and sell this software and 
++.\" its documentation for any purpose is hereby granted without fee, provided
++.\" that (i) the above copyright notices and this permission notice appear in
++.\" all copies of the software and related documentation, and (ii) the names of
++.\" Sam Leffler and Silicon Graphics may not be used in any advertising or
++.\" publicity relating to the software without the specific, prior written
++.\" permission of Sam Leffler and Silicon Graphics.
++.\" 
++.\" THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
++.\" EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
++.\" WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
++.\" 
++.\" IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
++.\" ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
++.\" OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
++.\" WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
++.\" LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
++.\" OF THIS SOFTWARE.
++.\"
++.if n .po 0
++.TH TIFFFieldReadCount 3TIFF "July 26, 2012" "libtiff"
++.SH NAME
++TIFFFieldReadCount \- Get number of values to be read from field
++.SH SYNOPSIS
++.B "#include <tiffio.h>"
++.sp
++.BI "int TIFFFieldReadCount(const TIFFField* " fip ")"
++.SH DESCRIPTION
++.BR TIFFFieldReadCount
++returns the number of values available to be read from the specified
++TIFF field; that is, the number of arguments that should be supplied to
++.BR TIFFGetField .
++For most field types this is a small positive integer, typically 1 or 2,
++but there are some special values:
++.br
++.BR TIFF_VARIABLE
++indicates that a variable number of values is possible; then, a
++.BR uint16
++.I count
++argument and a pointer
++.I data
++argument must be supplied to
++.BR TIFFGetField .
++.br
++.BR TIFF_VARIABLE2
++is the same as
++.BR TIFF_VARIABLE
++except that the
++.I count
++argument must have type
++.BR uint32 .
++.br
++.BR TIFF_SPP
++indicates that the number of arguments is equal to the image's
++number of samples per pixel.
++.P
++.I fip
++is a field information pointer previously returned by
++.BR TIFFFindField ,
++.BR TIFFFieldWithTag ,
++or
++.BR TIFFFieldWithName .
++.br
++.SH "RETURN VALUES"
++.br
++.BR TIFFFieldReadCount
++returns an integer.
++.br
++.SH "SEE ALSO"
++.BR libtiff (3TIFF),
++.PP
++Libtiff library home page:
++.BR http://www.remotesensing.org/libtiff/
+diff -Naur tiff-4.0.2.orig/man/TIFFFieldTag.3tiff tiff-4.0.2/man/TIFFFieldTag.3tiff
+--- tiff-4.0.2.orig/man/TIFFFieldTag.3tiff	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/man/TIFFFieldTag.3tiff	2012-07-29 13:28:51.056258444 -0400
+@@ -0,0 +1,56 @@
++.\" $Id: TIFFFieldTag.3tiff,v 1.1 2012-07-29 15:45:30 tgl Exp $
++.\"
++.\" Copyright (c) 2012, Tom Lane <tgl@sss.pgh.pa.us>
++.\"
++.\" Permission to use, copy, modify, distribute, and sell this software and 
++.\" its documentation for any purpose is hereby granted without fee, provided
++.\" that (i) the above copyright notices and this permission notice appear in
++.\" all copies of the software and related documentation, and (ii) the names of
++.\" Sam Leffler and Silicon Graphics may not be used in any advertising or
++.\" publicity relating to the software without the specific, prior written
++.\" permission of Sam Leffler and Silicon Graphics.
++.\" 
++.\" THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
++.\" EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
++.\" WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
++.\" 
++.\" IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
++.\" ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
++.\" OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
++.\" WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
++.\" LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
++.\" OF THIS SOFTWARE.
++.\"
++.if n .po 0
++.TH TIFFFieldTag 3TIFF "July 26, 2012" "libtiff"
++.SH NAME
++TIFFFieldTag \- Get TIFF field tag value from field information
++.SH SYNOPSIS
++.B "#include <tiffio.h>"
++.sp
++.BI "uint32 TIFFFieldTag(const TIFFField* " fip ")"
++.SH DESCRIPTION
++.BR TIFFFieldTag
++returns the numeric tag value for a TIFF field.
++This can be compared to various constants exported by the
++.BR libtiff
++header files, such as
++.BR TIFFTAG_IMAGEWIDTH .
++.P
++.I fip
++is a field information pointer previously returned by
++.BR TIFFFindField ,
++.BR TIFFFieldWithTag ,
++or
++.BR TIFFFieldWithName .
++.br
++.SH "RETURN VALUES"
++.br
++.BR TIFFFieldTag
++returns an integer tag value.
++.br
++.SH "SEE ALSO"
++.BR libtiff (3TIFF),
++.PP
++Libtiff library home page:
++.BR http://www.remotesensing.org/libtiff/
+diff -Naur tiff-4.0.2.orig/man/TIFFFieldWriteCount.3tiff tiff-4.0.2/man/TIFFFieldWriteCount.3tiff
+--- tiff-4.0.2.orig/man/TIFFFieldWriteCount.3tiff	1969-12-31 19:00:00.000000000 -0500
++++ tiff-4.0.2/man/TIFFFieldWriteCount.3tiff	2012-07-29 13:28:51.056258444 -0400
+@@ -0,0 +1,88 @@
++.\" $Id: TIFFFieldWriteCount.3tiff,v 1.1 2012-07-29 15:45:30 tgl Exp $
++.\"
++.\" Copyright (c) 2012, Tom Lane <tgl@sss.pgh.pa.us>
++.\"
++.\" Permission to use, copy, modify, distribute, and sell this software and 
++.\" its documentation for any purpose is hereby granted without fee, provided
++.\" that (i) the above copyright notices and this permission notice appear in
++.\" all copies of the software and related documentation, and (ii) the names of
++.\" Sam Leffler and Silicon Graphics may not be used in any advertising or
++.\" publicity relating to the software without the specific, prior written
++.\" permission of Sam Leffler and Silicon Graphics.
++.\" 
++.\" THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
++.\" EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
++.\" WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
++.\" 
++.\" IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
++.\" ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
++.\" OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
++.\" WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF 
++.\" LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE 
++.\" OF THIS SOFTWARE.
++.\"
++.if n .po 0
++.TH TIFFFieldWriteCount 3TIFF "July 26, 2012" "libtiff"
++.SH NAME
++TIFFFieldWriteCount \- Get number of values to be written to field
++.SH SYNOPSIS
++.B "#include <tiffio.h>"
++.sp
++.BI "int TIFFFieldWriteCount(const TIFFField* " fip ")"
++.SH DESCRIPTION
++.BR TIFFFieldWriteCount
++returns the number of values to be written into the specified
++TIFF field; that is, the number of arguments that should be supplied to
++.BR TIFFSetField .
++For most field types this is a small positive integer, typically 1 or 2,
++but there are some special values:
++.br
++.BR TIFF_VARIABLE
++indicates that a variable number of values is possible; then, a
++.BR uint16
++.I count
++argument and a pointer
++.I data
++argument must be supplied to
++.BR TIFFSetField .
++.br
++.BR TIFF_VARIABLE2
++is the same as
++.BR TIFF_VARIABLE
++except that the
++.I count
++argument must have type
++.BR uint32 .
++(On most modern machines, this makes no practical difference, and the
++.I count
++argument can simply be an
++.BR int
++in either case.)
++.br
++.BR TIFF_SPP
++indicates that the number of arguments must be equal to the image's
++number of samples per pixel.
++.P
++.I fip
++is a field information pointer previously returned by
++.BR TIFFFindField ,
++.BR TIFFFieldWithTag ,
++or
++.BR TIFFFieldWithName .
++.P
++For most field types,
++.BR TIFFFieldWriteCount
++returns the same value as
++.BR TIFFFieldReadCount ,
++but there are some exceptions.
++.br
++.SH "RETURN VALUES"
++.br
++.BR TIFFFieldWriteCount
++returns an integer.
++.br
++.SH "SEE ALSO"
++.BR libtiff (3TIFF),
++.PP
++Libtiff library home page:
++.BR http://www.remotesensing.org/libtiff/
+diff -Naur tiff-4.0.2.orig/man/libtiff.3tiff tiff-4.0.2/man/libtiff.3tiff
+--- tiff-4.0.2.orig/man/libtiff.3tiff	2005-11-02 06:07:19.000000000 -0500
++++ tiff-4.0.2/man/libtiff.3tiff	2012-07-29 13:28:51.056258444 -0400
+@@ -1,4 +1,4 @@
+-.\" $Id: libtiff.3tiff,v 1.3 2005-11-02 11:07:19 dron Exp $
++.\" $Id: libtiff.3tiff,v 1.4 2012-07-29 15:45:30 tgl Exp $
+ .\"
+ .\" Copyright (c) 1988-1997 Sam Leffler
+ .\" Copyright (c) 1991-1997 Silicon Graphics, Inc.
+@@ -163,9 +163,18 @@
+ TIFFDataWidth 		return the size of TIFF data types
+ TIFFError		library error handler
+ TIFFFdOpen		open a file for reading or writing
++TIFFFieldDataType	get data type from field information
++TIFFFieldName		get field name from field information
++TIFFFieldPassCount	get whether to pass a value count to Get/SetField
++TIFFFieldReadCount	get number of values to be read from field
++TIFFFieldTag		get tag value from field information
++TIFFFieldWithName	get field information given field name
++TIFFFieldWithTag	get field information given tag
++TIFFFieldWriteCount	get number of values to be written to field
+ TIFFFileName		return name of open file
+ TIFFFileno		return open file descriptor
+ TIFFFindCODEC		find standard codec for the specific scheme
++TIFFFindField		get field information given tag and data type
+ TIFFFlush		flush all pending writes
+ TIFFFlushData		flush pending data writes
+ TIFFGetBitRevTable	return bit reversal table
+diff -Naur tiff-4.0.2.orig/tools/tiffset.c tiff-4.0.2/tools/tiffset.c
+--- tiff-4.0.2.orig/tools/tiffset.c	2011-03-26 08:07:20.000000000 -0400
++++ tiff-4.0.2/tools/tiffset.c	2012-07-29 13:28:51.057258427 -0400
+@@ -1,5 +1,5 @@
+ /******************************************************************************
+- * $Id: tiffset.c,v 1.16 2011-03-26 12:07:20 fwarmerdam Exp $
++ * $Id: tiffset.c,v 1.17 2012-07-29 15:45:30 tgl Exp $
+  *
+  * Project:  libtiff tools
+  * Purpose:  Mainline for setting metadata in existing TIFF files.
+@@ -35,7 +35,6 @@
+ #include <stdlib.h>
+ 
+ #include "tiffio.h"
+-#include "tif_dir.h"
+ 
+ static char* usageMsg[] = {
+ "usage: tiffset [options] filename",
+@@ -118,25 +117,25 @@
+                 return 3;
+ 
+             arg_index++;
+-            if (fip->field_type == TIFF_ASCII) {
+-                if (TIFFSetField(tiff, fip->field_tag, argv[arg_index]) != 1)
++            if (TIFFFieldDataType(fip) == TIFF_ASCII) {
++                if (TIFFSetField(tiff, TIFFFieldTag(fip), argv[arg_index]) != 1)
+                     fprintf( stderr, "Failed to set %s=%s\n",
+-                             fip->field_name, argv[arg_index] );
+-            } else if (fip->field_writecount > 0
+-		       || fip->field_writecount == TIFF_VARIABLE) {
++                             TIFFFieldName(fip), argv[arg_index] );
++            } else if (TIFFFieldWriteCount(fip) > 0
++		       || TIFFFieldWriteCount(fip) == TIFF_VARIABLE) {
+                 int     ret = 1;
+                 short   wc;
+ 
+-                if (fip->field_writecount == TIFF_VARIABLE)
++                if (TIFFFieldWriteCount(fip) == TIFF_VARIABLE)
+                         wc = atoi(argv[arg_index++]);
+                 else
+-                        wc = fip->field_writecount;
++                        wc = TIFFFieldWriteCount(fip);
+ 
+                 if (argc - arg_index < wc) {
+                     fprintf( stderr,
+                              "Number of tag values is not enough. "
+                              "Expected %d values for %s tag, got %d\n",
+-                             wc, fip->field_name, argc - arg_index);
++                             wc, TIFFFieldName(fip), argc - arg_index);
+                     return 4;
+                 }
+                     
+@@ -144,7 +143,7 @@
+                         int     i, size;
+                         void    *array;
+ 
+-                        switch (fip->field_type) {
++                        switch (TIFFFieldDataType(fip)) {
+                                 /*
+                                  * XXX: We can't use TIFFDataWidth()
+                                  * to determine the space needed to store
+@@ -186,7 +185,7 @@
+                                 return 4;
+                         }
+ 
+-                        switch (fip->field_type) {
++                        switch (TIFFFieldDataType(fip)) {
+                             case TIFF_BYTE:
+                                 for (i = 0; i < wc; i++)
+                                     ((uint8 *)array)[i] = atoi(argv[arg_index+i]);
+@@ -226,49 +225,49 @@
+                                 break;
+                         }
+                 
+-                        if (fip->field_passcount) {
+-                                ret = TIFFSetField(tiff, fip->field_tag,
++                        if (TIFFFieldPassCount(fip)) {
++                                ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+                                                    wc, array);
+-                        } else if (fip->field_tag == TIFFTAG_PAGENUMBER
+-				   || fip->field_tag == TIFFTAG_HALFTONEHINTS
+-				   || fip->field_tag == TIFFTAG_YCBCRSUBSAMPLING
+-				   || fip->field_tag == TIFFTAG_DOTRANGE) {
+-       				if (fip->field_type == TIFF_BYTE) {
+-					ret = TIFFSetField(tiff, fip->field_tag,
++                        } else if (TIFFFieldTag(fip) == TIFFTAG_PAGENUMBER
++				   || TIFFFieldTag(fip) == TIFFTAG_HALFTONEHINTS
++				   || TIFFFieldTag(fip) == TIFFTAG_YCBCRSUBSAMPLING
++				   || TIFFFieldTag(fip) == TIFFTAG_DOTRANGE) {
++       				if (TIFFFieldDataType(fip) == TIFF_BYTE) {
++					ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+ 						((uint8 *)array)[0], ((uint8 *)array)[1]);
+-				} else if (fip->field_type == TIFF_SHORT) {
+-					ret = TIFFSetField(tiff, fip->field_tag,
++				} else if (TIFFFieldDataType(fip) == TIFF_SHORT) {
++					ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+ 						((uint16 *)array)[0], ((uint16 *)array)[1]);
+ 				}
+ 			} else {
+-                                ret = TIFFSetField(tiff, fip->field_tag,
++                                ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+                                                    array);
+                         }
+ 
+                         _TIFFfree(array);
+                 } else {
+-                        switch (fip->field_type) {
++                        switch (TIFFFieldDataType(fip)) {
+                             case TIFF_BYTE:
+                             case TIFF_SHORT:
+                             case TIFF_SBYTE:
+                             case TIFF_SSHORT:
+-                                ret = TIFFSetField(tiff, fip->field_tag,
++                                ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+                                                    atoi(argv[arg_index++]));
+                                 break;
+                             case TIFF_LONG:
+                             case TIFF_SLONG:
+                             case TIFF_IFD:
+-                                ret = TIFFSetField(tiff, fip->field_tag,
++                                ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+                                                    atol(argv[arg_index++]));
+                                 break;
+                             case TIFF_DOUBLE:
+-                                ret = TIFFSetField(tiff, fip->field_tag,
++                                ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+                                                    atof(argv[arg_index++]));
+                                 break;
+                             case TIFF_RATIONAL:
+                             case TIFF_SRATIONAL:
+                             case TIFF_FLOAT:
+-                                ret = TIFFSetField(tiff, fip->field_tag,
++                                ret = TIFFSetField(tiff, TIFFFieldTag(fip),
+                                                    (float)atof(argv[arg_index++]));
+                                 break;
+                             default:
+@@ -277,7 +276,7 @@
+                 }
+ 
+                 if (ret != 1)
+-                    fprintf(stderr, "Failed to set %s\n", fip->field_name);
++                    fprintf(stderr, "Failed to set %s\n", TIFFFieldName(fip));
+                 arg_index += wc;
+             }
+         } else if (strcmp(argv[arg_index],"-sf") == 0 && arg_index < argc-3) {
+@@ -292,10 +291,10 @@
+             if (!fip)
+                 return 3;
+ 
+-            if (fip->field_type != TIFF_ASCII) {
++            if (TIFFFieldDataType(fip) != TIFF_ASCII) {
+                 fprintf( stderr,
+                          "Only ASCII tags can be set from file. "
+-                         "%s is not ASCII tag.\n", fip->field_name );
++                         "%s is not ASCII tag.\n", TIFFFieldName(fip) );
+                 return 5;
+             }
+ 
+@@ -312,9 +311,9 @@
+ 
+             fclose( fp );
+ 
+-            if(TIFFSetField( tiff, fip->field_tag, text ) != 1) {
++            if(TIFFSetField( tiff, TIFFFieldTag(fip), text ) != 1) {
+                 fprintf(stderr, "Failed to set %s from file %s\n", 
+-                        fip->field_name, argv[arg_index]);
++                        TIFFFieldName(fip), argv[arg_index]);
+             }
+ 
+             _TIFFfree( text );

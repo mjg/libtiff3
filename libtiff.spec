@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.2
-Release: 4%{?dist}
+Release: 5%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -20,6 +20,7 @@ Source1: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{prevversion}.tar.gz
 
 Patch1: libtiff-4.0.2-bigendian.patch
 Patch2: libtiff-CVE-2012-3401.patch
+Patch3: libtiff-accessors.patch
 
 # these patches are only needed for prevversion:
 Patch10: libtiff-CVE-2012-1173-3.9.patch
@@ -86,6 +87,7 @@ This package contains shared libraries (only) for libtiff 3.9.x.
 
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -241,6 +243,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libtiffxx.so.3*
 
 %changelog
+* Thu Aug  2 2012 Tom Lane <tgl@redhat.com> 4.0.2-5
+- Add accessor functions for opaque type TIFFField (backport of not-yet-released
+  upstream feature addition; needed to fix freeimage)
+
 * Sun Jul 22 2012 Tom Lane <tgl@redhat.com> 4.0.2-4
 - Add patches for CVE-2012-3401
 Resolves: #841736
