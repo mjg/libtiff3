@@ -1,34 +1,18 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.2
-Release: 5%{?dist}
+Release: 6%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
 
-# This SRPM includes a copy of libtiff 3.9.x, which is provided as a stopgap
-# measure to satisfy dependencies on libtiff.so.3 until all applications can
-# be recompiled.  The compatibility library is placed in a separate
-# sub-RPM, libtiff-compat.  There is no support for recompiling source code
-# against the old version.
-%global prevversion 3.9.6
-
-Source0: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
-
-Source1: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{prevversion}.tar.gz
+Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 
 Patch1: libtiff-4.0.2-bigendian.patch
 Patch2: libtiff-CVE-2012-3401.patch
 Patch3: libtiff-accessors.patch
 
-# these patches are only needed for prevversion:
-Patch10: libtiff-CVE-2012-1173-3.9.patch
-Patch11: libtiff-CVE-2012-2088.patch
-Patch12: libtiff-CVE-2012-2113.patch
-Patch13: libtiff-CVE-2012-3401-3.9.patch
-
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
 
@@ -45,7 +29,7 @@ format image files.
 Summary: Development tools for programs which will use the libtiff library
 Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: pkgconfig
+Requires: pkgconfig%{?_isa}
 
 %description devel
 This package contains the header files and documentation necessary for
@@ -75,13 +59,6 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 This package contains command-line programs for manipulating TIFF format
 image files using the libtiff library.
 
-%package compat
-Summary: Temporary backwards-compatibility copy of old libtiff
-Group: Development/Libraries
-
-%description compat
-This package contains shared libraries (only) for libtiff 3.9.x.
-
 %prep
 %setup -q -n tiff-%{version}
 
@@ -98,22 +75,6 @@ automake --add-missing --copy
 autoconf
 autoheader
 
-# And the same for the compatibility package ...
-	tar xfz %{SOURCE1}
-	pushd tiff-%{prevversion}
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-	# Use build system's libtool.m4, not the one in the package.
-	rm -f libtool.m4
-	libtoolize --force  --copy
-	aclocal -I . -I m4
-	automake --add-missing --copy
-	autoconf
-	autoheader
-	popd
-
 %build
 export CFLAGS="%{optflags} -fno-strict-aliasing"
 %configure --enable-ld-version-script
@@ -121,28 +82,7 @@ make %{?_smp_mflags}
 
 LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH make check
 
-# And the same for the compatibility package ...
-	pushd tiff-%{prevversion}
-	%configure --disable-jbig
-	make %{?_smp_mflags}
-	popd
-
 %install
-rm -rf $RPM_BUILD_ROOT
-
-# install compat package first, then remove unwanted files
-	pushd tiff-%{prevversion}
-	make DESTDIR=$RPM_BUILD_ROOT install
-	rm -rf $RPM_BUILD_ROOT%{_bindir}
-	rm -rf $RPM_BUILD_ROOT%{_includedir}
-	rm -rf $RPM_BUILD_ROOT%{_mandir}
-	rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/
-	rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/libtiff*.pc
-	rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff*.so
-	rm -f $RPM_BUILD_ROOT%{_libdir}/libtiff*.a
-	rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
-	popd
-
 make DESTDIR=$RPM_BUILD_ROOT install
 
 # remove what we didn't want installed
@@ -203,24 +143,16 @@ fi
 # don't include documentation Makefiles, they are a multilib hazard
 find html -name 'Makefile*' | xargs rm
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
-%post compat -p /sbin/ldconfig
-%postun compat -p /sbin/ldconfig
-
 %files
-%defattr(-,root,root,0755)
 %doc COPYRIGHT README RELEASE-DATE VERSION
-%{_libdir}/libtiff.so.5*
-%{_libdir}/libtiffxx.so.5*
+%{_libdir}/libtiff.so.*
+%{_libdir}/libtiffxx.so.*
 
 %files devel
-%defattr(-,root,root,0755)
 %doc TODO ChangeLog html
 %{_includedir}/*
 %{_libdir}/libtiff.so
@@ -229,20 +161,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man3/*
 
 %files static
-%defattr(-,root,root)
 %{_libdir}/*.a
 
 %files tools
-%defattr(-,root,root,0755)
 %{_bindir}/*
 %{_mandir}/man1/*
 
-%files compat
-%defattr(-,root,root)
-%{_libdir}/libtiff.so.3*
-%{_libdir}/libtiffxx.so.3*
-
 %changelog
+* Fri Aug  3 2012 Tom Lane <tgl@redhat.com> 4.0.2-6
+- Remove compat subpackage; no longer needed
+- Minor specfile cleanup per suggestions from Tom Callaway
+Related: #845110
+
 * Thu Aug  2 2012 Tom Lane <tgl@redhat.com> 4.0.2-5
 - Add accessor functions for opaque type TIFFField (backport of not-yet-released
   upstream feature addition; needed to fix freeimage)
