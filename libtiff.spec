@@ -1,17 +1,13 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
-Version: 4.0.2
-Release: 6%{?dist}
+Version: 4.0.3
+Release: 1%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
 
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
-
-Patch1: libtiff-4.0.2-bigendian.patch
-Patch2: libtiff-CVE-2012-3401.patch
-Patch3: libtiff-accessors.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -61,10 +57,6 @@ image files using the libtiff library.
 
 %prep
 %setup -q -n tiff-%{version}
-
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -168,6 +160,9 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Thu Oct  4 2012 Tom Lane <tgl@redhat.com> 4.0.3-1
+- Update to libtiff 4.0.3
+
 * Fri Aug  3 2012 Tom Lane <tgl@redhat.com> 4.0.2-6
 - Remove compat subpackage; no longer needed
 - Minor specfile cleanup per suggestions from Tom Callaway
