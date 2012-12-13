@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
-Version: 3.9.6
-Release: 2%{?dist}
+Version: 3.9.7
+Release: 1%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -9,10 +9,11 @@ URL: http://www.remotesensing.org/libtiff/
 
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
 
-Patch1: libtiff-CVE-2012-1173.patch
-Patch2: libtiff-CVE-2012-2088.patch
-Patch3: libtiff-CVE-2012-2113.patch
-Patch4: libtiff-CVE-2012-3401.patch
+Patch1: libtiff-CVE-2012-4447.patch
+Patch2: libtiff-CVE-2012-4564.patch
+Patch3: libtiff-CVE-2012-5581.patch
+Patch4: libtiff-printdir-width.patch
+Patch5: libtiff-tiffinfo-exif.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: zlib-devel libjpeg-devel
@@ -69,6 +70,7 @@ image files using the libtiff library.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -180,6 +182,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec 13 2012 Tom Lane <tgl@redhat.com> 3.9.7-1
+- Update to libtiff 3.9.7 (includes previously-added security fixes)
+- Add patches for CVE-2012-4447, CVE-2012-4564, CVE-2012-5581
+Resolves: #880907
+
 * Sun Jul 22 2012 Tom Lane <tgl@redhat.com> 3.9.6-2
 - Add patch for CVE-2012-3401
 Resolves: #841736
