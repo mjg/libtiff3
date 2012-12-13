@@ -1,13 +1,18 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
 URL: http://www.remotesensing.org/libtiff/
 
 Source: ftp://ftp.remotesensing.org/pub/libtiff/tiff-%{version}.tar.gz
+
+Patch0: libtiff-am-version.patch
+Patch1: libtiff-CVE-2012-4447.patch
+Patch2: libtiff-CVE-2012-4564.patch
+Patch3: libtiff-printdir-width.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -57,6 +62,11 @@ image files using the libtiff library.
 
 %prep
 %setup -q -n tiff-%{version}
+
+%patch0 -p1
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -160,6 +170,11 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Thu Dec 13 2012 Tom Lane <tgl@redhat.com> 4.0.3-2
+- Add upstream patches for CVE-2012-4447, CVE-2012-4564
+  (note: CVE-2012-5581 is already fixed in 4.0.3)
+Resolves: #880907
+
 * Thu Oct  4 2012 Tom Lane <tgl@redhat.com> 4.0.3-1
 - Update to libtiff 4.0.3
 
