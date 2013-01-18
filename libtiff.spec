@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 3%{?dist}
+Release: 4%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -172,6 +172,9 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Fri Jan 18 2013 Adam Tkac <atkac redhat com> - 4.0.3-4
+- rebuild due to "jpeg8-ABI" feature drop
+
 * Wed Dec 19 2012 Tom Lane <tgl@redhat.com> 4.0.3-3
 - Add upstream patch to avoid bogus self-test failure with libjpeg-turbo v8
 
