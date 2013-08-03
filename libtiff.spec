@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 6%{?dist}
+Release: 7%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -176,6 +176,9 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.3-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Thu May  2 2013 Tom Lane <tgl@redhat.com> 4.0.3-6
 - Add upstream patches for CVE-2013-1960, CVE-2013-1961
 Resolves: #958609
