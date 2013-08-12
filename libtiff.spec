@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 7%{?dist}
+Release: 8%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -16,6 +16,7 @@ Patch3: libtiff-printdir-width.patch
 Patch4: libtiff-jpeg-test.patch
 Patch5: libtiff-CVE-2013-1960.patch
 Patch6: libtiff-CVE-2013-1961.patch
+Patch7: libtiff-manpage-update.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -73,6 +74,7 @@ image files using the libtiff library.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -176,6 +178,9 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Mon Aug 12 2013 Petr Hracek <phracek@redhat.com> - 4.0.3-8
+- Manpage fixing (#510240, #510258)
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.3-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
@@ -504,7 +509,7 @@ Resolves: bz #222729
 * Tue Dec 19 2000 Philipp Knirsch <pknirsch@redhat.de>
 - rebuild
 
-* Tue Aug  7 2000 Crutcher Dunnavant <crutcher@redhat.com>
+* Mon Aug  7 2000 Crutcher Dunnavant <crutcher@redhat.com>
 - added a tiff-to-ps.fpi filter for printing
 
 * Thu Jul 13 2000 Prospector <bugzilla@redhat.com>
