@@ -13,8 +13,10 @@ Patch0: libtiff-am-version.patch
 Patch1: libtiff-CVE-2012-4447.patch
 Patch2: libtiff-CVE-2012-4564.patch
 Patch3: libtiff-printdir-width.patch
+Patch4: libtiff-jpeg-test.patch
 Patch5: libtiff-CVE-2013-1960.patch
 Patch6: libtiff-CVE-2013-1961.patch
+Patch7: libtiff-manpage-update.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -69,8 +71,10 @@ image files using the libtiff library.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -174,9 +178,18 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
-* Thu May  2 2013 Tom Lane <tgl@redhat.com> 4.0.3-6
+* Mon Aug 12 2013 Petr Hracek <phracek@redhat.com> - 4.0.3-6
+- Manpage fixing (#510240, #510258)
+
+* Thu May  2 2013 Tom Lane <tgl@redhat.com> 4.0.3-5
 - Add upstream patches for CVE-2013-1960, CVE-2013-1961
 Resolves: #958609
+
+* Fri Jan 18 2013 Adam Tkac <atkac redhat com> - 4.0.3-4
+- rebuild due to "jpeg8-ABI" feature drop
+
+* Wed Dec 19 2012 Tom Lane <tgl@redhat.com> 4.0.3-3
+- Add upstream patch to avoid bogus self-test failure with libjpeg-turbo v8
 
 * Thu Dec 13 2012 Tom Lane <tgl@redhat.com> 4.0.3-2
 - Add upstream patches for CVE-2012-4447, CVE-2012-4564
@@ -490,7 +503,7 @@ Resolves: bz #222729
 * Tue Dec 19 2000 Philipp Knirsch <pknirsch@redhat.de>
 - rebuild
 
-* Tue Aug  7 2000 Crutcher Dunnavant <crutcher@redhat.com>
+* Mon Aug  7 2000 Crutcher Dunnavant <crutcher@redhat.com>
 - added a tiff-to-ps.fpi filter for printing
 
 * Thu Jul 13 2000 Prospector <bugzilla@redhat.com>
