@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 8%{?dist}
+Release: 9%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -19,6 +19,7 @@ Patch6: libtiff-CVE-2013-1961.patch
 Patch7: libtiff-manpage-update.patch
 Patch8: libtiff-CVE-2013-4231.patch
 Patch9: libtiff-CVE-2013-4232.patch
+Patch10: libtiff-CVE-2013-4244.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -79,6 +80,7 @@ image files using the libtiff library.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -182,6 +184,10 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Mon Aug 19 2013 Petr Hracek <phracek@redhat.com> 4.0.3-9
+- Add upstream patches for CVE-2013-4244
+Resolves: #996468
+
 * Wed Aug 14 2013 Petr Hracek <phracek@redhat.com> 4.0.3-8
 - Add upstream patches for CVE-2013-4231 CVE-2013-4232
 Resolves: #995965 #995975
