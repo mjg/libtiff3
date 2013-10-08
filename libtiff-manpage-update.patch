@@ -33,7 +33,7 @@ index c3a9bac..a826ad7 100644
  .B \-p
  Force the generation of (non-Encapsulated) \*(Ps.
  .TP
-@@ -198,6 +198,9 @@ Set the initial
+@@ -188,6 +188,9 @@ Set the initial
  .B \-p
  Force the generation of (non-Encapsulated) \*(Ps.
  .TP
@@ -80,6 +80,16 @@ index 5fdcc47..bf50130 100644
  .B \-p
  Specify the planar configuration to use in writing image data
  that has one 8-bit sample per pixel.
+@@ -228,6 +228,9 @@ appear in a tile.
+ .B \-x
+ Force the output file to be written with PAGENUMBER value in sequence.
+ .TP
++.B \-8
++Write BigTIFF instead of classic TIFF format.
++.TP
+ .BI \-,= character
+ substitute
+ .I character
 diff --git a/tools/tiffcp.c b/tools/tiffcp.c
 index 0f81b19..8c696db 100644
 --- a/tools/tiffcp.c

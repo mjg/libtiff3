@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 10%{?dist}
+Release: 11%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -184,6 +184,9 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Tue Oct 08 2013 Petr Hracek <phracek@redhat.com> - 4.0.3-11
+- Resolves: #510258, #510240 - man page corrections
+
 * Mon Aug 19 2013 Petr Hracek <phracek@redhat.com> 4.0.3-10
 - Add upstream patches for CVE-2013-4244
 Resolves: #996468
