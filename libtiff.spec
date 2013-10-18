@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 11%{?dist}
+Release: 12%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -20,6 +20,7 @@ Patch7: libtiff-manpage-update.patch
 Patch8: libtiff-CVE-2013-4231.patch
 Patch9: libtiff-CVE-2013-4232.patch
 Patch10: libtiff-CVE-2013-4244.patch
+Patch11: libtiff-make-check.patch
 
 BuildRequires: zlib-devel libjpeg-devel jbigkit-devel
 BuildRequires: libtool automake autoconf pkgconfig
@@ -81,6 +82,7 @@ image files using the libtiff library.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 # Use build system's libtool.m4, not the one in the package.
 rm -f libtool.m4
@@ -96,8 +98,6 @@ export CFLAGS="%{optflags} -fno-strict-aliasing"
 %configure --enable-ld-version-script
 make %{?_smp_mflags}
 
-LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH make check
-
 %install
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -107,15 +107,16 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/doc/
 
 # no libGL dependency, please
 rm -f $RPM_BUILD_ROOT%{_bindir}/tiffgt
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
-rm -f html/man/tiffgt.1.html
 
 # no sgi2tiff or tiffsv, either
 rm -f $RPM_BUILD_ROOT%{_bindir}/sgi2tiff
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/sgi2tiff.1
-rm -f html/man/sgi2tiff.1.html
 rm -f $RPM_BUILD_ROOT%{_bindir}/tiffsv
+
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/tiffgt.1
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/sgi2tiff.1
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/tiffsv.1
+rm -f html/man/tiffgt.1.html
+rm -f html/man/sgi2tiff.1.html
 rm -f html/man/tiffsv.1.html
 
 # multilib header hack
@@ -156,12 +157,15 @@ EOF
 
 fi
 
-# don't include documentation Makefiles, they are a multilib hazard
-find html -name 'Makefile*' | xargs rm
-
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
+
+%check
+LD_LIBRARY_PATH=$PWD:$LD_LIBRARY_PATH make check
+
+# don't include documentation Makefiles, they are a multilib hazard
+find html/man -name 'Makefile*' | xargs rm
 
 %files
 %doc COPYRIGHT README RELEASE-DATE VERSION
@@ -184,6 +188,9 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Wed Oct 16 2013 Petr Hracek <phracek@redhat.com> - 4.0.3-12
+- make check moved to %check section (#1017070)
+
 * Tue Oct 08 2013 Petr Hracek <phracek@redhat.com> - 4.0.3-11
 - Resolves: #510258, #510240 - man page corrections
 
