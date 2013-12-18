@@ -105,3 +105,15 @@ index 0f81b19..8c696db 100644
  " -i              ignore read errors",
  " -b file[,#]     bias (dark) monochrome image to be subtracted from all others",
  " -,=%            use % rather than , to separate image #'s (per Note below)",
+diff --git a/man/tiff2ps.1 b/man/tiff2ps.1
+index b4a304a..0d672b0 100644
+--- a/man/tiff2ps.1
++++ b/man/tiff2ps.1
+@@ -149,6 +149,7 @@ be split in several pages. Options
+ and 
+ .B \-W
+ are mutually exclusive.
++.TP
+ .B \-i
+ Enable/disable pixel interpolation.  This option requires a
+ single numeric value: zero to disable pixel interpolation and
