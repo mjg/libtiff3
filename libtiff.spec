@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
 Name: libtiff
 Version: 4.0.3
-Release: 17%{?dist}
+Release: 18%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -190,6 +190,9 @@ find html -name 'Makefile*' | xargs rm
 %{_mandir}/man1/*
 
 %changelog
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.3-18
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Tue Aug 12 2014 Kalev Lember <kalevlember@gmail.com> - 4.0.3-17
 - Rebuilt for libjbig soname bump
 
