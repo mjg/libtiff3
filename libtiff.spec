@@ -1,7 +1,7 @@
 Summary: Library of functions for manipulating TIFF format image files
-Name: libtiff
+Name: libtiff3
 Version: 3.9.7
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 License: libtiff
 Group: System Environment/Libraries
@@ -186,6 +186,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/*
 
 %changelog
+* Mon Jan 12 2015 Michael J Gruber <mjg@fedoraproject.org> 3.9.7-3
+- Repackage as compatibility package libtiff3
+
 * Thu May  2 2013 Tom Lane <tgl@redhat.com> 3.9.7-2
 - Add upstream patches for CVE-2013-1960, CVE-2013-1961
 Resolves: #958609
